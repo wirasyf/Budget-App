@@ -1,0 +1,169 @@
+import 'package:flutter/material.dart';
+import 'package:flutter1/const/color.dart';
+
+class Settings extends StatefulWidget {
+  const Settings({super.key});
+
+  @override
+  State<Settings> createState() => _SettingsState();
+}
+
+class _SettingsState extends State<Settings> {
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Column(
+        children: [
+          SizedBox(height: 20),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 40,
+                  backgroundColor: appPrimary,
+                  child: IconButton(
+                    icon: Icon(Icons.person, size: 50, color: appWhite),
+                    onPressed: () {
+                      //
+                    },
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Username",
+                        style: TextStyle(fontSize: 14, color: appGrey),
+                      ),
+                      SizedBox(height: 5),
+                      Text(
+                        "Wirawrr",
+                        style: TextStyle(
+                          fontSize: 22,
+                          color: appBlack,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: Container(
+                    alignment: Alignment.centerRight,
+                    child: IconButton(
+                      icon: Icon(Icons.edit, size: 38, color: appPrimary),
+                      onPressed: () {
+                        //
+                      },
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(height: 50),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 40),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                IconButton(
+                  icon: Icon(Icons.color_lens, size: 40, color: appPrimary),
+                  onPressed: () {
+                    //
+                  },
+                ),
+                SizedBox(width: 10),
+                TextButton(onPressed: () {}, child: Text("Theme", style: TextStyle(fontSize: 20, color: appBlack, fontWeight: FontWeight.bold))),
+              ],
+            ),
+          ),
+          SizedBox(height: 50),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 40),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                IconButton(
+                  icon: Icon(Icons.arrow_upward_rounded, size: 40, color: appPrimary),
+                  onPressed: () {
+                    //
+                  },
+                ),
+                SizedBox(width: 10),
+                TextButton(
+                  onPressed: () {},
+                  child: Text(
+                    "Export Data",
+                    style: TextStyle(
+                      fontSize: 20,
+                      color: appBlack,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(height: 50),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 40),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                IconButton(
+                  icon: Icon(Icons.arrow_downward_outlined, size: 40, color: appPrimary),
+                  onPressed: () {
+                    //
+                  },
+                ),
+                SizedBox(width: 10),
+                TextButton(
+                  onPressed: () {},
+                  child: Text(
+                    "Import Data",
+                    style: TextStyle(
+                      fontSize: 20,
+                      color: appBlack,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(height: 50),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 40),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                IconButton(
+                  icon: Icon(Icons.logout, size: 40, color: appPrimary),
+                  onPressed: () {
+                    //
+                  },
+                ),
+                SizedBox(width: 10),
+                TextButton(
+                  onPressed: () {},
+                  child: Text(
+                    "Log Out",
+                    style: TextStyle(
+                      fontSize: 20,
+                      color: appBlack,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

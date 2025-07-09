@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter1/widget/balance.dart';
-import 'package:flutter1/widget/buttom_bar.dart';
-import 'package:flutter1/widget/date_filter.dart';
-import 'package:flutter1/widget/info_balance.dart';
-import 'package:flutter1/widget/info_trans.dart';
-import 'package:flutter1/widget/recent_section.dart';
-import 'package:flutter1/widget/up_bar.dart';
+import 'package:flutter1/widget/home/balance.dart';
+import 'package:flutter1/widget/home/buttom_bar.dart';
+import 'package:flutter1/widget/home/date_filter.dart';
+import 'package:flutter1/widget/home/info_balance.dart';
+import 'package:flutter1/widget/home/info_trans.dart';
+import 'package:flutter1/widget/home/recent_section.dart';
+import 'package:flutter1/widget/home/up_bar.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -34,8 +34,8 @@ class _HomePageState extends State<HomePage> {
               // Income and Expense 
               Row(
                 children: [
-                  InfoBalance(IsIncome: true, Nominal: "12.000"),
-                  InfoBalance(IsIncome: false, Nominal: "2.000"),
+                  InfoBalance(isIncome: true, nominal: "12.000"),
+                  InfoBalance(isIncome: false, nominal: "2.000"),
                 ],
               ),
               SizedBox(height: 10),

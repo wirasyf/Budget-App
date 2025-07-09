@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-// import 'package:flutter1/auth/login.dart';
 import 'package:flutter1/main/home.dart';
-// import 'package:flutter1/home/home.dart';
+// import 'package:flutter1/main/settings.dart';
 
 
 
