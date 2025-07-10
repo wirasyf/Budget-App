@@ -24,7 +24,7 @@ class NavBar extends StatelessWidget {
           children: [
             IconButton(
               onPressed: () {},
-              icon: Icon(Icons.arrow_drop_down, size: 24, color: appBlack),
+              icon: Icon(Icons.arrow_drop_down_rounded, size: 30, color: appBlack),
             ),
             TextButton(
               onPressed: () {},

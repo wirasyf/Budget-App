@@ -13,8 +13,9 @@ class DateFilter extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Container(
+            width: 80,
             decoration: BoxDecoration(
-              color: appYellow,
+              color: appYellowSoft,
               borderRadius: BorderRadius.circular(20),
             ),
             child: TextButton(
@@ -23,30 +24,33 @@ class DateFilter extends StatelessWidget {
                 "Today",
                 style: TextStyle(
                   fontSize: 16,
-                  color: appWhite,
+                  color: appYellow,
                   fontWeight: FontWeight.bold,
                 ),
+              ),
+            ),
+          ),
+          SizedBox(
+            width: 80,
+            child: TextButton(  
+              onPressed: () {},
+              child: Text(
+                "Week",
+                style: TextStyle(fontSize: 16, color: appBlackSoft),
               ),
             ),
           ),
           TextButton(
             onPressed: () {},
             child: Text(
-              "This Week",
+              "Month",
               style: TextStyle(fontSize: 16, color: appBlackSoft),
             ),
           ),
           TextButton(
             onPressed: () {},
             child: Text(
-              "This Month",
-              style: TextStyle(fontSize: 16, color: appBlackSoft),
-            ),
-          ),
-          TextButton(
-            onPressed: () {},
-            child: Text(
-              "This Year",
+              "Year",
               style: TextStyle(fontSize: 16, color: appBlackSoft),
             ),
           ),

@@ -23,7 +23,7 @@ class InfoBalance extends StatelessWidget {
         margin: const EdgeInsets.all(8),
         decoration: BoxDecoration(
           color: isIncome ? appGreen : appRed,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(30),
         ),
         child: Padding(
           padding: const EdgeInsets.all(16),

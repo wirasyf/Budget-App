@@ -1,24 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:flutter1/main/home.dart';
-// import 'package:flutter1/main/settings.dart';
-
-
+import 'package:flutter1/widget/layout/navigation.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-      ),
-      home: const HomePage(),
+      title: 'Budget App',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: MainNavigation(),
     );
   }
 }
+

@@ -17,15 +17,31 @@ class InfoTransaction extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      leading: isExpense
-          ? Icon(Icons.arrow_downward, color: appGreen)
-          : Icon(Icons.arrow_upward, color: appRed),
-      title: Text(titleTrans),
-      subtitle: Text(categoryTrans),
-      trailing: Text(
-        isExpense ? "+$nominalTrans" : "-$nominalTrans",
-        style: TextStyle(color: isExpense ? appGreen : appRed),
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+      decoration: BoxDecoration(
+        color: appBlue,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: ListTile(
+        leading: Container(
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          width: 50,
+          height: 50,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14),
+            color: isExpense ? appGreenSoft : appRedSoft,
+          ),
+          child: isExpense
+              ? Icon(Icons.arrow_downward, color: appGreen)
+              : Icon(Icons.arrow_upward, color: appRed),
+        ),
+        title: Text(titleTrans),
+        subtitle: Text(categoryTrans),
+        trailing: Text(
+          isExpense ? "+$nominalTrans" : "-$nominalTrans",
+          style: TextStyle(color: isExpense ? appGreen : appRed),
+        ),
       ),
     );
   }

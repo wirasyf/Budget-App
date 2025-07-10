@@ -12,7 +12,7 @@ class RecentSection extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            "Recent Transactions",
+            "Recent Transaction",
             style: TextStyle(
               fontSize: 16,
               color: appBlack,
@@ -21,7 +21,7 @@ class RecentSection extends StatelessWidget {
           ),
           Container(
             decoration: BoxDecoration(
-              color: appGrey,
+              color: appVioletSoft,
               borderRadius: BorderRadius.circular(20),
             ),
             child: TextButton(
@@ -29,7 +29,7 @@ class RecentSection extends StatelessWidget {
               child: Text(
                 "See All",
                 style: TextStyle(
-                  color: appBlack,
+                  color: appPrimary,
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
                 ),
