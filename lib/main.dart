@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter1/widget/layout/navigation.dart';
+import 'package:flutter1/auth/login.dart';
 
 void main() {
   runApp(MyApp());
@@ -14,7 +14,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Budget App',
       theme: ThemeData(primarySwatch: Colors.blue),
-      home: MainNavigation(),
+      home: LoginPage(),
     );
   }
 }
