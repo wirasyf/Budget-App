@@ -40,7 +40,7 @@ class _MainNavigationState extends State<MainNavigation> {
           TabItem(icon: Icons.home_rounded, title: 'Home'),
           TabItem(icon: Icons.compare_arrows_rounded, title: 'Details'),
           TabItem(icon: Icons.add_rounded, title: 'Add'),
-          TabItem(icon: Icons.notifications_rounded, title: 'Notifications'),
+          TabItem(icon: Icons.notifications_rounded, title: 'Notif'),
           TabItem(icon: Icons.person_rounded, title: 'Profile'),
         ],
         initialActiveIndex: _selectedIndex,

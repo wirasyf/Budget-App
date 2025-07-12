@@ -5,11 +5,27 @@ class NotificationPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Text(
-        "Notification Page",
-        style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-      ),
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(16),
+          child: Text(
+            "Notifications",
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          ),
+        ),
+        Expanded(
+          child: ListView.builder(
+            itemCount: 10,
+            itemBuilder: (context, index) {
+              return ListTile(
+                title: Text("Notification ${index + 1}"),
+                subtitle: Text("This is the detail of notification ${index + 1}"),
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 }

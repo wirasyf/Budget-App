@@ -39,12 +39,16 @@ class NavBar extends StatelessWidget {
             ),
           ],
         ),
-        IconButton(
-          onPressed: () {},
-          icon: Icon(Icons.notifications),
-          iconSize: 28,
-          color: appPrimary,
-        ),
+      IconButton(
+        onPressed: () {
+          // Toggle theme
+        },
+        icon: Icon(Theme.of(context).brightness == Brightness.dark 
+            ? Icons.sunny 
+            : Icons.dark_mode),
+        iconSize: 28,
+        color: appPrimary,
+      ),
       ],
     );
   }
