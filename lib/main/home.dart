@@ -55,14 +55,78 @@ class _HomePageState extends State<HomePage> {
                     child: ListView(
                       shrinkWrap: true,
                       children: [
-                        InfoTransaction(titleTrans: "Ngopi", categoryTrans: "Food", nominalTrans: "20.000", isExpense: true,),
-                        InfoTransaction(titleTrans: "Grocery", categoryTrans: "Expense", nominalTrans: "5.000", isExpense: false,),
-                        InfoTransaction(titleTrans: "Rent", categoryTrans: "Expense", nominalTrans: "3.000", isExpense: false,),
-                        InfoTransaction(titleTrans: "Freelance", categoryTrans: "Income", nominalTrans: "8.000", isExpense: true,),
-                        InfoTransaction(titleTrans: "Utilities", categoryTrans: "Expense", nominalTrans: "2.000", isExpense: false,),
-                        InfoTransaction(titleTrans: "Transport", categoryTrans: "Expense", nominalTrans: "1.000", isExpense: false,),
-                        InfoTransaction(titleTrans: "Bonus", categoryTrans: "Income", nominalTrans: "10.000", isExpense: true,),
-                        InfoTransaction(titleTrans: "Dinner", categoryTrans: "Food", nominalTrans: "15.000", isExpense: true,),
+                        InfoTransaction(
+                          titleTrans: "Ngopi",
+                          categoryTrans: "Food",
+                          nominalTrans: "20.000",
+                          isExpense: true,
+                          onTap: () {
+                            //
+                          },
+                        ),
+                        InfoTransaction(
+                          titleTrans: "Grocery",
+                          categoryTrans: "Expense",
+                          nominalTrans: "5.000",
+                          isExpense: false,
+                          onTap: () {
+                            //
+                          },
+                        ),
+                        InfoTransaction(
+                          titleTrans: "Rent",
+                          categoryTrans: "Expense",
+                          nominalTrans: "3.000",
+                          isExpense: false,
+                          onTap: () {
+                            //
+                          },
+                        ),
+                        InfoTransaction(
+                          titleTrans: "Freelance",
+                          categoryTrans: "Income",
+                          nominalTrans: "8.000",
+                          isExpense: true,
+                          onTap: () {
+                            //
+                          },
+                        ),
+                        InfoTransaction(
+                          titleTrans: "Utilities",
+                          categoryTrans: "Expense",
+                          nominalTrans: "2.000",
+                          isExpense: false,
+                          onTap: () {
+                            //
+                          },
+                        ),
+                        InfoTransaction(
+                          titleTrans: "Transport",
+                          categoryTrans: "Expense",
+                          nominalTrans: "1.000",
+                          isExpense: false,
+                          onTap: () {
+                            //
+                          },
+                        ),
+                        InfoTransaction(
+                          titleTrans: "Bonus",
+                          categoryTrans: "Income",
+                          nominalTrans: "10.000",
+                          isExpense: true,
+                          onTap: () {
+                            //
+                          },
+                        ),
+                        InfoTransaction(
+                          titleTrans: "Dinner",
+                          categoryTrans: "Food",
+                          nominalTrans: "15.000",
+                          isExpense: true,
+                          onTap: () {
+                            //
+                          },
+                        ),
                       ],
                     ),
                   ),
@@ -75,11 +139,3 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
-
-
-
-
-
-
-
-

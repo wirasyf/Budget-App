@@ -53,31 +53,40 @@ class _DetailTransactionState extends State<DetailTransaction> {
             ],
           ),
         ),
+
+        //Total Balance
         Container(
           margin: const EdgeInsets.all(20),
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
+          child: Material(
             color: appWhiteDark,
             borderRadius: BorderRadius.circular(10),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                "Total Balance",
-                style: TextStyle(
-                  fontSize: 16,
-                  color: appBlack,
-                  fontWeight: FontWeight.bold,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(10),
+              onTap: () {
+                // 
+              },
+              child: Padding(
+                padding: const EdgeInsets.all(10),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "Total Balance",
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: appBlack,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Icon(Icons.arrow_forward_ios, color: appBlack),
+                  ],
                 ),
               ),
-              IconButton(
-                onPressed: () {},
-                icon: Icon(Icons.arrow_forward_ios, color: appBlack),
-              ),
-            ],
+            ),
           ),
         ),
+
+        //Detail Transaksi
         Expanded(
           child: ListView(
             children: [
@@ -102,66 +111,99 @@ class _DetailTransactionState extends State<DetailTransaction> {
                 categoryTrans: "Food",
                 nominalTrans: "20.000",
                 isExpense: true,
+                onTap: () {
+                  //
+                },
               ),
               InfoTransaction(
                 titleTrans: "Grocery",
                 categoryTrans: "Expense",
                 nominalTrans: "5.000",
                 isExpense: false,
+                onTap: () {
+                  //
+                },
               ),
               InfoTransaction(
                 titleTrans: "Rent",
                 categoryTrans: "Expense",
                 nominalTrans: "3.000",
                 isExpense: false,
+                onTap: () {
+                  //
+                },
               ),
               InfoTransaction(
                 titleTrans: "Freelance",
                 categoryTrans: "Income",
                 nominalTrans: "8.000",
                 isExpense: true,
+                onTap: () {
+                  //
+                },
               ),
               InfoTransaction(
                 titleTrans: "Utilities",
                 categoryTrans: "Expense",
                 nominalTrans: "2.000",
                 isExpense: false,
+                onTap: () {
+                  //
+                },
               ),
               InfoTransaction(
                 titleTrans: "Transport",
                 categoryTrans: "Expense",
                 nominalTrans: "1.000",
                 isExpense: false,
+                onTap: () {
+                  //
+                },
               ),
               InfoTransaction(
                 titleTrans: "Bonus",
                 categoryTrans: "Income",
                 nominalTrans: "10.000",
                 isExpense: true,
+                onTap: () {
+                  //
+                },
               ),
               InfoTransaction(
                 titleTrans: "Dinner",
                 categoryTrans: "Food",
                 nominalTrans: "15.000",
                 isExpense: true,
+                onTap: () {
+                  //
+                },
               ),
               InfoTransaction(
                 titleTrans: "Snacks",
                 categoryTrans: "Food",
                 nominalTrans: "5.000",
                 isExpense: true,
+                onTap: () {
+                  //
+                },
               ),
               InfoTransaction(
                 titleTrans: "Shopping",
                 categoryTrans: "Expense",
                 nominalTrans: "50.000",
                 isExpense: false,
+                onTap: () {
+                  //
+                },
               ),
               InfoTransaction(
                 titleTrans: "Salary",
                 categoryTrans: "Income",
                 nominalTrans: "2.000.000",
                 isExpense: true,
+                onTap: () {
+                  //
+                },
               ),
             ],
           ),

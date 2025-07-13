@@ -8,39 +8,48 @@ class InfoTransaction extends StatelessWidget {
     required this.categoryTrans,
     required this.nominalTrans, 
     required this.isExpense,
+    this.onTap,
   });
 
   final bool isExpense;
   final String titleTrans;
   final String categoryTrans;
   final String nominalTrans;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-      decoration: BoxDecoration(
+      child: Material(
         color: appBlue,
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: ListTile(
-        leading: Container(
-          padding: const EdgeInsets.symmetric(vertical: 10),
-          width: 50,
-          height: 50,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(14),
-            color: isExpense ? appGreenSoft : appRedSoft,
+        borderRadius: BorderRadius.circular(18),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(18),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.all(10),
+            child: ListTile(
+              leading: Container(
+                width: 50,
+                height: 50,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(14),
+                  color: isExpense ? appGreenSoft : appRedSoft,
+                ),
+                child: Icon(
+                  isExpense ? Icons.arrow_downward : Icons.arrow_upward,
+                  color: isExpense ? appGreen : appRed,
+                ),
+              ),
+              title: Text(titleTrans),
+              subtitle: Text(categoryTrans),
+              trailing: Text(
+                isExpense ? "+$nominalTrans" : "-$nominalTrans",
+                style: TextStyle(color: isExpense ? appGreen : appRed),
+              ),
+            ),
           ),
-          child: isExpense
-              ? Icon(Icons.arrow_downward, color: appGreen)
-              : Icon(Icons.arrow_upward, color: appRed),
-        ),
-        title: Text(titleTrans),
-        subtitle: Text(categoryTrans),
-        trailing: Text(
-          isExpense ? "+$nominalTrans" : "-$nominalTrans",
-          style: TextStyle(color: isExpense ? appGreen : appRed),
         ),
       ),
     );
