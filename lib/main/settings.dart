@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter1/auth/login.dart';
 import 'package:flutter1/const/color.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class Settings extends StatefulWidget {
   const Settings({super.key});
 
+void logoutUser(BuildContext context) async {
+  await FirebaseAuth.instance.signOut();
+}
   @override
   State<Settings> createState() => _SettingsState();
 }
@@ -199,7 +204,14 @@ class _SettingsState extends State<Settings> {
                           ),
                           SizedBox(width: 5),
                           TextButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              Navigator.of(context).pushAndRemoveUntil(
+                                MaterialPageRoute(
+                                  builder: (context) => const LoginPage(),
+                                ),
+                                (route) => false,
+                              );
+                            },
                             child: Text(
                               "Log Out",
                               style: TextStyle(

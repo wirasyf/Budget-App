@@ -211,6 +211,7 @@ class _LoginPageState extends State<LoginPage> {
                       style: TextStyle(color: Colors.white),
                     ),
                     TextButton(
+                      // Navigasi tanpa animasi
                       onPressed: () {
                         Navigator.of(context).push(
                           PageRouteBuilder(

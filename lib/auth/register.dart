@@ -15,9 +15,25 @@ class _RegisterPageState extends State<RegisterPage> {
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
   bool _isLoading = false;
 
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
+  }
+
   void _register() async {
+    if (_passwordController.text.isEmpty || _confirmPasswordController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill in all fields')),
+      );
+      return;
+    }
+
     if (_passwordController.text != _confirmPasswordController.text) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Password dan konfirmasi tidak cocok')),
@@ -35,11 +51,12 @@ class _RegisterPageState extends State<RegisterPage> {
         password: _passwordController.text.trim(),
       );
 
-      // Registrasi berhasil -> masuk ke HomePage
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const HomePage()),
-      );
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const HomePage()),
+        );
+      }
     } on FirebaseAuthException catch (e) {
       String errorMessage = 'Terjadi kesalahan';
       if (e.code == 'email-already-in-use') {
@@ -50,13 +67,17 @@ class _RegisterPageState extends State<RegisterPage> {
         errorMessage = 'Password terlalu lemah';
       }
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(errorMessage)));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(errorMessage))
+        );
+      }
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -94,7 +115,6 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
                 const SizedBox(height: 35),
 
-                // Email
                 TextField(
                   controller: _emailController,
                   style: const TextStyle(color: Colors.white),
@@ -114,7 +134,6 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
                 const SizedBox(height: 20),
 
-                // Password
                 TextField(
                   controller: _passwordController,
                   obscureText: _obscurePassword,
@@ -147,10 +166,9 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
                 const SizedBox(height: 20),
 
-                // Confirm Password
                 TextField(
                   controller: _confirmPasswordController,
-                  obscureText: _obscurePassword,
+                  obscureText: _obscureConfirmPassword,
                   style: const TextStyle(color: Colors.white),
                   decoration: InputDecoration(
                     labelText: "Confirm Password",
@@ -164,14 +182,14 @@ class _RegisterPageState extends State<RegisterPage> {
                     prefixIcon: const Icon(Icons.lock, color: Colors.white),
                     suffixIcon: IconButton(
                       icon: Icon(
-                        _obscurePassword
+                        _obscureConfirmPassword
                             ? Icons.visibility
                             : Icons.visibility_off,
                         color: Colors.white,
                       ),
                       onPressed: () {
                         setState(() {
-                          _obscurePassword = !_obscurePassword;
+                          _obscureConfirmPassword = !_obscureConfirmPassword;
                         });
                       },
                     ),
@@ -180,7 +198,6 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
                 const SizedBox(height: 30),
 
-                // Sign Up Button
                 _isLoading
                     ? const CircularProgressIndicator(color: Colors.white)
                     : ElevatedButton(
@@ -205,7 +222,6 @@ class _RegisterPageState extends State<RegisterPage> {
                       ),
                 const SizedBox(height: 20),
 
-                // Login
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -214,6 +230,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       style: TextStyle(color: Colors.white),
                     ),
                     TextButton(
+                      //Nafigasi tanpa animasi
                       onPressed: () {
                         Navigator.of(context).push(
                           PageRouteBuilder(
