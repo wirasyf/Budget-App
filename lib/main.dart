@@ -1,7 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter1/auth/login.dart';
 import 'package:flutter1/firebase_options.dart';
-import 'package:flutter1/widget/layout/navigation.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,7 +21,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Budget App',
       theme: ThemeData(primarySwatch: Colors.blue),
-      home: MainNavigation(),
+      home: LoginPage(),
     );
   }
 }

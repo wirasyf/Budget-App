@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter1/const/color.dart';
 
 class NotificationPage extends StatelessWidget {
   const NotificationPage({super.key});
@@ -18,9 +19,17 @@ class NotificationPage extends StatelessWidget {
           child: ListView.builder(
             itemCount: 10,
             itemBuilder: (context, index) {
-              return ListTile(
-                title: Text("Notification ${index + 1}"),
-                subtitle: Text("This is the detail of notification ${index + 1}"),
+              return Container(
+                  margin: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+                  padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: appVioletSoft,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                child: ListTile(
+                  title: Text("Notification ${index + 1}"),
+                  subtitle: Text("This is the detail of notification ${index + 1}"),
+                ),
               );
             },
           ),

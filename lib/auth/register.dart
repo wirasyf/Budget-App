@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter1/auth/login.dart';
-import 'package:flutter1/main/home.dart';
+import 'package:flutter1/widget/layout/navigation.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -54,7 +54,7 @@ class _RegisterPageState extends State<RegisterPage> {
       if (mounted) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const HomePage()),
+          MaterialPageRoute(builder: (context) => const MainNavigation()),
         );
       }
     } on FirebaseAuthException catch (e) {
