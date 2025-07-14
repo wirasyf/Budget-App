@@ -1,53 +1,58 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter1/auth/register.dart';
-import 'package:flutter1/widget/layout/navigation.dart';
+import 'package:flutter1/auth/login.dart';
+import 'package:flutter1/main/home.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+class RegisterPage extends StatefulWidget {
+  const RegisterPage({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<RegisterPage> createState() => _RegisterPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _RegisterPageState extends State<RegisterPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
   bool _obscurePassword = true;
-  bool _rememberMe = false;
   bool _isLoading = false;
 
-  void _login() async {
+  void _register() async {
+    if (_passwordController.text != _confirmPasswordController.text) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Password dan konfirmasi tidak cocok')),
+      );
+      return;
+    }
+
     setState(() {
       _isLoading = true;
     });
 
     try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
+      await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
 
-      // Navigasi ke Homepage
-      if (!mounted) return;
+      // Registrasi berhasil -> masuk ke HomePage
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const MainNavigation()),
+        MaterialPageRoute(builder: (context) => const HomePage()),
       );
     } on FirebaseAuthException catch (e) {
-      String message = "Login gagal";
-      if (e.code == 'user-not-found') {
-        message = 'Email tidak terdaftar';
-      } else if (e.code == 'wrong-password') {
-        message = 'Password salah';
-      } else {
-        message = e.message ?? 'Terjadi kesalahan';
+      String errorMessage = 'Terjadi kesalahan';
+      if (e.code == 'email-already-in-use') {
+        errorMessage = 'Email sudah terdaftar';
+      } else if (e.code == 'invalid-email') {
+        errorMessage = 'Format email tidak valid';
+      } else if (e.code == 'weak-password') {
+        errorMessage = 'Password terlalu lemah';
       }
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(message), backgroundColor: Colors.red),
-        );
-      }
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(errorMessage)));
     } finally {
       setState(() {
         _isLoading = false;
@@ -66,7 +71,6 @@ class _LoginPageState extends State<LoginPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Icon
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
@@ -143,45 +147,44 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 const SizedBox(height: 20),
 
-                // Remember Me & Forgot
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        Checkbox(
-                          value: _rememberMe,
-                          onChanged: (value) {
-                            setState(() {
-                              _rememberMe = value ?? false;
-                            });
-                          },
-                          fillColor: WidgetStateProperty.all(Colors.white),
-                          checkColor: Colors.blue,
-                          side: const BorderSide(color: Colors.white),
-                        ),
-                        const Text(
-                          "Remember Me",
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ],
+                // Confirm Password
+                TextField(
+                  controller: _confirmPasswordController,
+                  obscureText: _obscurePassword,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    labelText: "Confirm Password",
+                    labelStyle: const TextStyle(color: Colors.white),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide.none,
                     ),
-                    TextButton(
-                      onPressed: () {},
-                      child: const Text(
-                        "Forgot Password?",
-                        style: TextStyle(color: Colors.white),
+                    filled: true,
+                    fillColor: Colors.white.withOpacity(0.2),
+                    prefixIcon: const Icon(Icons.lock, color: Colors.white),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscurePassword
+                            ? Icons.visibility
+                            : Icons.visibility_off,
+                        color: Colors.white,
                       ),
+                      onPressed: () {
+                        setState(() {
+                          _obscurePassword = !_obscurePassword;
+                        });
+                      },
                     ),
-                  ],
+                    contentPadding: const EdgeInsets.symmetric(vertical: 15),
+                  ),
                 ),
                 const SizedBox(height: 30),
 
-                // Login Button
+                // Sign Up Button
                 _isLoading
                     ? const CircularProgressIndicator(color: Colors.white)
                     : ElevatedButton(
-                        onPressed: _login,
+                        onPressed: _register,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(
@@ -193,7 +196,7 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                         ),
                         child: const Text(
-                          "Login",
+                          "Sign Up",
                           style: TextStyle(
                             color: Colors.lightBlue,
                             fontSize: 18,
@@ -202,26 +205,26 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                 const SizedBox(height: 20),
 
-                // Sign Up
+                // Login
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Text(
-                      "Don't have an account? ",
+                      "Do have an account? ",
                       style: TextStyle(color: Colors.white),
                     ),
                     TextButton(
                       onPressed: () {
                         Navigator.of(context).push(
                           PageRouteBuilder(
-                            pageBuilder: (_, __, ___) => const RegisterPage(),
+                            pageBuilder: (_, __, ___) => const LoginPage(),
                             transitionDuration: Duration.zero,
                             reverseTransitionDuration: Duration.zero,
                           ),
                         );
                       },
                       child: const Text(
-                        "Sign Up",
+                        "Login",
                         style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
