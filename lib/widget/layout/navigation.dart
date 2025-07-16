@@ -21,7 +21,7 @@ class _MainNavigationState extends State<MainNavigation> {
   final List<Widget> _pages = [
     HomePage(),
     DetailTransaction(),
-    AddPage(),
+    TransactionFormPage(),
     NotificationPage(),
     Settings(),
   ];

@@ -48,7 +48,7 @@ class _SettingsState extends State<Settings> {
                           ),
                           SizedBox(height: 5),
                           Text(
-                            "Wirawrr",
+                            FirebaseAuth.instance.currentUser?.email ?? "",
                             style: TextStyle(
                               fontSize: 22,
                               color: appBlack,

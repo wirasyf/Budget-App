@@ -9,7 +9,8 @@ class NotificationPage extends StatelessWidget {
     return Column(
       children: [
         Container(
-          padding: const EdgeInsets.all(16),
+          margin: EdgeInsets.only(top: 30, bottom: 10),
+          padding: EdgeInsets.all(16),
           child: Text(
             "Notifications",
             style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
@@ -28,7 +29,7 @@ class NotificationPage extends StatelessWidget {
                   ),
                 child: ListTile(
                   title: Text("Notification ${index + 1}"),
-                  subtitle: Text("This is the detail of notification ${index + 1}"),
+                  subtitle: Text("isi notifikasi ${index + 1}"),
                 ),
               );
             },

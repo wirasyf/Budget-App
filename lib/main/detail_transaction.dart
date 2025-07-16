@@ -1,6 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter1/const/color.dart';
-import 'package:flutter1/widget/home/info_trans.dart';
 
 class DetailTransaction extends StatefulWidget {
   const DetailTransaction({super.key});
@@ -10,205 +11,248 @@ class DetailTransaction extends StatefulWidget {
 }
 
 class _DetailTransactionState extends State<DetailTransaction> {
+  DateTime selectedMonth = DateTime.now();
+  String selectedCategory = 'All';
+  String selectedType = 'All';
+
+  final List<String> categories = [
+    'All',
+    'Food',
+    'Transportation',
+    'Shopping',
+    'Entertainment',
+    'Bills',
+    'Other',
+  ];
+
+  final List<String> types = ['All', 'Expense', 'Income'];
+
+  void _openFilterDialog() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'Filter Transaksi',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 10),
+              DropdownButtonFormField<String>(
+                value: selectedType,
+                items: types.map((type) {
+                  return DropdownMenuItem(value: type, child: Text(type));
+                }).toList(),
+                onChanged: (val) => setState(() => selectedType = val!),
+                decoration: const InputDecoration(labelText: 'Tipe Transaksi'),
+              ),
+              const SizedBox(height: 10),
+              DropdownButtonFormField<String>(
+                value: selectedCategory,
+                items: categories.map((cat) {
+                  return DropdownMenuItem(value: cat, child: Text(cat));
+                }).toList(),
+                onChanged: (val) => setState(() => selectedCategory = val!),
+                decoration: const InputDecoration(labelText: 'Kategori'),
+              ),
+              const SizedBox(height: 10),
+              ElevatedButton(
+                onPressed: () {
+                  setState(() {});
+                  Navigator.pop(context);
+                },
+                child: const Text('Terapkan Filter'),
+              ),
+              TextButton(
+                onPressed: () {
+                  setState(() {
+                    selectedType = 'All';
+                    selectedCategory = 'All';
+                    selectedMonth = DateTime.now();
+                  });
+                  Navigator.pop(context);
+                },
+                child: const Text('Reset Filter'),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _pickMonth(BuildContext context) async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: selectedMonth,
+      firstDate: DateTime(2020),
+      lastDate: DateTime.now(),
+      helpText: 'Pilih Bulan',
+    );
+
+    if (picked != null) {
+      setState(() {
+        selectedMonth = DateTime(picked.year, picked.month);
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              GestureDetector(
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      child: Icon(
-                        Icons.arrow_drop_down_rounded,
-                        size: 30,
-                        color: appBlack,
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        //
-                      },
-                      child: Text(
-                        "July",
-                        style: TextStyle(
-                          fontSize: 18,
+    final user = FirebaseAuth.instance.currentUser;
+    final start = DateTime(selectedMonth.year, selectedMonth.month);
+    final end = DateTime(selectedMonth.year, selectedMonth.month + 1);
+
+    Query query = FirebaseFirestore.instance
+        .collection('transactions')
+        .where('uid', isEqualTo: user?.uid)
+        .where('date', isGreaterThanOrEqualTo: start)
+        .where('date', isLessThan: end)
+        .orderBy('date', descending: true);
+
+    if (selectedType != 'All') {
+      query = query.where('type', isEqualTo: selectedType);
+    }
+    if (selectedCategory != 'All') {
+      query = query.where('category', isEqualTo: selectedCategory);
+    }
+
+    return Scaffold(
+      appBar: AppBar(title: const Text('Detail Transaksi')),
+      body: Column(
+        children: [
+          // HEADER: Bulan dan Filter Button
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                GestureDetector(
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        child: Icon(
+                          Icons.arrow_drop_down_rounded,
+                          size: 30,
                           color: appBlack,
-                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              ),
-              IconButton(
-                onPressed: () {},
-                icon: Icon(Icons.filter_list, size: 30, color: appBlack),
-              ),
-            ],
-          ),
-        ),
-
-        //Total Balance
-        Container(
-          margin: const EdgeInsets.all(20),
-          child: Material(
-            color: appWhiteDark,
-            borderRadius: BorderRadius.circular(10),
-            child: InkWell(
-              borderRadius: BorderRadius.circular(10),
-              onTap: () {
-                // 
-              },
-              child: Padding(
-                padding: const EdgeInsets.all(10),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "Total Balance",
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: appBlack,
-                        fontWeight: FontWeight.bold,
+                      TextButton(
+                        onPressed: () => _pickMonth(context),
+                        child: Text(
+                          "${selectedMonth.month.toString().padLeft(2, '0')}/${selectedMonth.year}",
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: appBlack,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
-                    ),
-                    Icon(Icons.arrow_forward_ios, color: appBlack),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
+                IconButton(
+                  onPressed: _openFilterDialog,
+                  icon: Icon(Icons.filter_list, size: 30, color: appBlack),
+                ),
+              ],
             ),
           ),
-        ),
 
-        //Detail Transaksi
-        Expanded(
-          child: ListView(
-            children: [
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "Today",
-                      style: TextStyle(
-                        fontSize: 20,
-                        color: appBlack,
-                        fontWeight: FontWeight.bold,
+          // Daftar Transaksi
+          Expanded(
+            child: StreamBuilder<QuerySnapshot>(
+              stream: query.snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                }
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                final docs = snapshot.data?.docs ?? [];
+
+                if (docs.isEmpty) {
+                  return const Center(child: Text('Tidak ada transaksi.'));
+                }
+
+                return ListView.builder(
+                  itemCount: docs.length,
+                  itemBuilder: (context, index) {
+                    final data = docs[index].data() as Map<String, dynamic>;
+                    final title = data['title'] ?? '-';
+                    final category = data['category'] ?? '-';
+                    final amount = data['amount']?.toString() ?? '0';
+                    final type = data['type'] ?? 'Expense';
+                    final isExpense = type == 'Expense';
+
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
                       ),
-                    ),
-                  ],
-                ),
-              ),
-              InfoTransaction(
-                titleTrans: "Ngopi",
-                categoryTrans: "Food",
-                nominalTrans: "20.000",
-                isExpense: true,
-                onTap: () {
-                  //
-                },
-              ),
-              InfoTransaction(
-                titleTrans: "Grocery",
-                categoryTrans: "Expense",
-                nominalTrans: "5.000",
-                isExpense: false,
-                onTap: () {
-                  //
-                },
-              ),
-              InfoTransaction(
-                titleTrans: "Rent",
-                categoryTrans: "Expense",
-                nominalTrans: "3.000",
-                isExpense: false,
-                onTap: () {
-                  //
-                },
-              ),
-              InfoTransaction(
-                titleTrans: "Freelance",
-                categoryTrans: "Income",
-                nominalTrans: "8.000",
-                isExpense: true,
-                onTap: () {
-                  //
-                },
-              ),
-              InfoTransaction(
-                titleTrans: "Utilities",
-                categoryTrans: "Expense",
-                nominalTrans: "2.000",
-                isExpense: false,
-                onTap: () {
-                  //
-                },
-              ),
-              InfoTransaction(
-                titleTrans: "Transport",
-                categoryTrans: "Expense",
-                nominalTrans: "1.000",
-                isExpense: false,
-                onTap: () {
-                  //
-                },
-              ),
-              InfoTransaction(
-                titleTrans: "Bonus",
-                categoryTrans: "Income",
-                nominalTrans: "10.000",
-                isExpense: true,
-                onTap: () {
-                  //
-                },
-              ),
-              InfoTransaction(
-                titleTrans: "Dinner",
-                categoryTrans: "Food",
-                nominalTrans: "15.000",
-                isExpense: true,
-                onTap: () {
-                  //
-                },
-              ),
-              InfoTransaction(
-                titleTrans: "Snacks",
-                categoryTrans: "Food",
-                nominalTrans: "5.000",
-                isExpense: true,
-                onTap: () {
-                  //
-                },
-              ),
-              InfoTransaction(
-                titleTrans: "Shopping",
-                categoryTrans: "Expense",
-                nominalTrans: "50.000",
-                isExpense: false,
-                onTap: () {
-                  //
-                },
-              ),
-              InfoTransaction(
-                titleTrans: "Salary",
-                categoryTrans: "Income",
-                nominalTrans: "2.000.000",
-                isExpense: true,
-                onTap: () {
-                  //
-                },
-              ),
-            ],
+                      child: Material(
+                        color: appBlue,
+                        borderRadius: BorderRadius.circular(18),
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(18),
+                          onTap: () {},
+                          child: Padding(
+                            padding: const EdgeInsets.all(10),
+                            child: ListTile(
+                              leading: Container(
+                                width: 50,
+                                height: 50,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(14),
+                                  color: isExpense ? appRedSoft : appGreenSoft,
+                                ),
+                                child: Icon(
+                                  isExpense
+                                      ? Icons.arrow_upward_rounded
+                                      : Icons.arrow_downward_rounded,
+                                  color: isExpense ? appRed : appGreen,
+                                ),
+                              ),
+                              title: Text(
+                                title,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: appBlack,
+                                ),
+                              ),
+                              subtitle: Text(
+                                category,
+                                style: const TextStyle(color: Colors.white70),
+                              ),
+                              trailing: Text(
+                                isExpense ? "- Rp $amount" : "+ Rp $amount",
+                                style: TextStyle(
+                                  color: isExpense ? appRed : appGreen,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

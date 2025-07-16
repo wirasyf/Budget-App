@@ -38,6 +38,7 @@ dependencies:
   convex_bottom_bar: ^3.2.0
   firebase_core: ^3.15.1
   firebase_auth: ^5.6.2
+  cloud_firestore: ^5.6.2
 
 dev_dependencies:
   flutter_test:
