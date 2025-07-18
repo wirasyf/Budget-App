@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:flutter1/const/color.dart';
-import 'package:flutter1/main/add.dart';
-import 'package:flutter1/main/detail_transaction.dart';
-import 'package:flutter1/main/home.dart';
-import 'package:flutter1/main/notification.dart';
-import 'package:flutter1/main/settings.dart';
+import 'package:flutter1/screens/add.dart';
+import 'package:flutter1/screens/detail_transaction.dart';
+import 'package:flutter1/screens/home.dart';
+import 'package:flutter1/screens/notification.dart';
+import 'package:flutter1/screens/settings.dart';
 
 class MainNavigation extends StatefulWidget {
   const MainNavigation({super.key});
