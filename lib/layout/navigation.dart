@@ -4,7 +4,7 @@ import 'package:flutter1/const/color.dart';
 import 'package:flutter1/screens/add.dart';
 import 'package:flutter1/screens/detail_transaction.dart';
 import 'package:flutter1/screens/home.dart';
-import 'package:flutter1/screens/notification.dart';
+import 'package:flutter1/screens/budget.dart';
 import 'package:flutter1/screens/settings.dart';
 
 class MainNavigation extends StatefulWidget {
@@ -22,7 +22,7 @@ class _MainNavigationState extends State<MainNavigation> {
     HomePage(),
     DetailTransaction(),
     TransactionFormPage(),
-    NotificationPage(),
+    BudgetingPage(),
     Settings(),
   ];
 
@@ -40,7 +40,7 @@ class _MainNavigationState extends State<MainNavigation> {
           TabItem(icon: Icons.home_rounded, title: 'Home'),
           TabItem(icon: Icons.compare_arrows_rounded, title: 'Details'),
           TabItem(icon: Icons.add_rounded, title: 'Add'),
-          TabItem(icon: Icons.notifications_rounded, title: 'Notif'),
+          TabItem(icon: Icons.pie_chart, title: 'Budget'),
           TabItem(icon: Icons.person_rounded, title: 'Profile'),
         ],
         initialActiveIndex: _selectedIndex,

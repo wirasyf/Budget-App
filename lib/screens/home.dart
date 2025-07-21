@@ -58,7 +58,7 @@ class _HomePageState extends State<HomePage> {
           return {
             'income': income,
             'expense': expense,
-            'balance': income - expense, 
+            'balance': income - expense,
           };
         });
   }
@@ -73,6 +73,31 @@ class _HomePageState extends State<HomePage> {
         .where('date', isGreaterThanOrEqualTo: Timestamp.fromDate(startDate))
         .orderBy('date', descending: true)
         .snapshots();
+  }
+
+  IconData getCategoryIcon(String category) {
+    switch (category.toLowerCase()) {
+      case 'food':
+        return Icons.fastfood;
+      case 'transportation':
+        return Icons.directions_car;
+      case 'shopping':
+        return Icons.shopping_bag;
+      case 'bills':
+        return Icons.receipt;
+      case 'entertainment':
+        return Icons.movie;
+      case 'salary':
+        return Icons.attach_money;
+      case 'gift':
+        return Icons.card_giftcard;
+      case 'investment':
+        return Icons.trending_up;
+      case 'health':
+        return Icons.health_and_safety;
+      default:
+        return Icons.category;
+    }
   }
 
   @override
@@ -103,29 +128,6 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                     ),
-                    Row(
-                      children: [
-                        IconButton(
-                          onPressed: () {},
-                          icon: Icon(
-                            Icons.arrow_drop_down_rounded,
-                            size: 30,
-                            color: appBlack,
-                          ),
-                        ),
-                        TextButton(
-                          onPressed: () {},
-                          child: Text(
-                            "July",
-                            style: TextStyle(
-                              fontSize: 18,
-                              color: appBlack,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
                     IconButton(
                       onPressed: () {},
                       icon: Icon(
@@ -139,7 +141,7 @@ class _HomePageState extends State<HomePage> {
                   ],
                 ),
                 SizedBox(height: 20),
-
+                
                 // Real-time Balance
                 StreamBuilder<Map<String, dynamic>>(
                   stream: getTransactionSummary(),
@@ -377,6 +379,8 @@ class _HomePageState extends State<HomePage> {
                         children: snapshot.data!.docs.map((doc) {
                           final data = doc.data() as Map<String, dynamic>;
                           final isExpense = data['type'] == 'Expense';
+                          final icon = getCategoryIcon(data['category'] ?? '');
+
                           return Container(
                             margin: const EdgeInsets.symmetric(
                               vertical: 10,
@@ -401,14 +405,12 @@ class _HomePageState extends State<HomePage> {
                                             : appRedSoft,
                                       ),
                                       child: Icon(
-                                        isExpense
-                                            ? Icons.arrow_downward
-                                            : Icons.arrow_upward,
+                                        icon,
                                         color: isExpense ? appGreen : appRed,
                                       ),
                                     ),
-                                    title: Text(data['title']),
-                                    subtitle: Text(data['category']),
+                                    title: Text(data['title'] ?? ''),
+                                    subtitle: Text(data['category'] ?? ''),
                                     trailing: Text(
                                       "${isExpense ? '-' : '+'}Rp${data['amount'].toString()}",
                                       style: TextStyle(

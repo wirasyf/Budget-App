@@ -1,19 +1,83 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter1/auth/login.dart';
 import 'package:flutter1/const/color.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class Settings extends StatefulWidget {
   const Settings({super.key});
 
-void logoutUser(BuildContext context) async {
-  await FirebaseAuth.instance.signOut();
-}
   @override
   State<Settings> createState() => _SettingsState();
 }
 
 class _SettingsState extends State<Settings> {
+  final user = FirebaseAuth.instance.currentUser;
+  final firestore = FirebaseFirestore.instance;
+  final storage = FirebaseStorage.instance;
+
+  String username = "";
+  String? photoUrl;
+
+  @override
+  void initState() {
+    super.initState();
+    loadUserData();
+  }
+
+  Future<void> loadUserData() async {
+    if (user == null) return;
+
+    final snapshot = await firestore.collection('users').doc(user!.uid).get();
+    if (snapshot.exists) {
+      setState(() {
+        username = snapshot.data()?['username'] ?? '';
+        photoUrl = snapshot.data()?['photoUrl'];
+      });
+    }
+  }
+
+  Future<void> updateUsername(String newUsername) async {
+    if (user == null) return;
+
+    await firestore.collection('users').doc(user!.uid).set({
+      'username': newUsername,
+    }, SetOptions(merge: true));
+
+    setState(() {
+      username = newUsername;
+    });
+  }
+
+  Future<void> pickAndUploadImage() async {
+    try {
+      final picker = ImagePicker();
+      final picked = await picker.pickImage(source: ImageSource.gallery);
+
+      if (picked != null && user != null) {
+        final ref = storage.ref().child('profile/${user!.uid}.jpg');
+        await ref.putFile(File(picked.path));
+        final downloadUrl = await ref.getDownloadURL();
+
+        await firestore.collection('users').doc(user!.uid).set({
+          'photoUrl': downloadUrl,
+        }, SetOptions(merge: true));
+
+        setState(() {
+          photoUrl = downloadUrl;
+        });
+      }
+    } catch (e) {
+      print("Upload error: $e");
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Gagal upload foto: $e')));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -22,33 +86,37 @@ class _SettingsState extends State<Settings> {
           color: appWhiteDark,
           child: Column(
             children: [
-              SizedBox(height: 20),
-              Container(
+              const SizedBox(height: 20),
+              Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Row(
                   children: [
-                    CircleAvatar(
-                      radius: 40,
-                      backgroundColor: appPrimary,
-                      child: IconButton(
-                        icon: Icon(Icons.person, size: 50, color: appWhite),
-                        onPressed: () {
-                          //
-                        },
+                    GestureDetector(
+                      onTap: pickAndUploadImage,
+                      child: CircleAvatar(
+                        key: ValueKey(photoUrl), // Memaksa refresh image
+                        radius: 40,
+                        backgroundColor: appPrimary,
+                        backgroundImage: photoUrl != null
+                            ? NetworkImage(photoUrl!)
+                            : null,
+                        child: photoUrl == null
+                            ? Icon(Icons.person, size: 50, color: appWhite)
+                            : null,
                       ),
                     ),
-                    Container(
-                      padding: const EdgeInsets.all(20),
+                    const SizedBox(width: 20),
+                    Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "Username",
+                            username.isNotEmpty ? username : "No Username",
                             style: TextStyle(fontSize: 14, color: appGrey),
                           ),
-                          SizedBox(height: 5),
+                          const SizedBox(height: 5),
                           Text(
-                            FirebaseAuth.instance.currentUser?.email ?? "",
+                            user?.email ?? "",
                             style: TextStyle(
                               fontSize: 22,
                               color: appBlack,
@@ -58,178 +126,130 @@ class _SettingsState extends State<Settings> {
                         ],
                       ),
                     ),
-                    Expanded(
-                      child: Container(
-                        alignment: Alignment.centerRight,
-                        child: IconButton(
-                          icon: Icon(Icons.edit, size: 38, color: appPrimary),
-                          onPressed: () {
-                            //
-                          },
-                        ),
-                      ),
+                    IconButton(
+                      icon: Icon(Icons.edit, size: 32, color: appPrimary),
+                      onPressed: () {
+                        final controller = TextEditingController(
+                          text: username,
+                        );
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text("Edit Username"),
+                            content: TextField(
+                              controller: controller,
+                              decoration: const InputDecoration(
+                                hintText: "Enter new username",
+                              ),
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: const Text("Cancel"),
+                              ),
+                              TextButton(
+                                onPressed: () async {
+                                  await updateUsername(controller.text.trim());
+                                  // ignore: use_build_context_synchronously
+                                  Navigator.pop(context);
+                                },
+                                child: const Text("Save"),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
                     ),
                   ],
                 ),
               ),
+              const SizedBox(height: 30),
               Container(
                 width: double.infinity,
                 margin: const EdgeInsets.all(20),
                 padding: const EdgeInsets.symmetric(vertical: 20),
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(20)),
                   color: appWhite,
+                  borderRadius: BorderRadius.circular(20),
                 ),
                 child: Column(
                   children: [
-                    SizedBox(height: 20),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 30),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Container(
-                            decoration: BoxDecoration(
-                              color: appVioletSoft,
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: IconButton(
-                              icon: Icon(Icons.color_lens, size: 40, color: appPrimary),
-                              onPressed: () {
-                                //
-                              },
-                            ),
-                          ),
-                          SizedBox(width: 5),
-                          TextButton(
-                            onPressed: () {},
-                            child: Text(
-                              "Theme",
-                              style: TextStyle(
-                                fontSize: 20,
-                                color: appBlack,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+                    _buildSettingItem(
+                      icon: Icons.color_lens,
+                      label: "Theme",
+                      color: appVioletSoft,
+                      onTap: () {
+                        // TODO: Tambah fitur theme
+                      },
                     ),
-                    SizedBox(height: 30),
-
-                    //Export Data Section
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 30),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Container(
-                            decoration: BoxDecoration(
-                              color: appVioletSoft,
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: IconButton(
-                              icon: Icon(Icons.arrow_upward_rounded, size: 40, color: appPrimary),
-                              onPressed: () {
-                                //
-                              },
-                            ),
-                          ),
-                          SizedBox(width: 5),
-                          TextButton(
-                            onPressed: () {},
-                            child: Text(
-                              "Export Data",
-                              style: TextStyle(
-                                fontSize: 20,
-                                color: appBlack,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+                    const SizedBox(height: 30),
+                    _buildSettingItem(
+                      icon: Icons.arrow_upward_rounded,
+                      label: "Export Data",
+                      color: appVioletSoft,
+                      onTap: () {
+                        // TODO: Tambah fitur export
+                      },
                     ),
-                    SizedBox(height: 30),
-
-                    // Import Data Section
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 30),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Container(
-                            decoration: BoxDecoration(
-                              color: appVioletSoft,
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: IconButton(
-                              icon: Icon(Icons.arrow_downward_outlined, size: 40, color: appPrimary),
-                              onPressed: () {
-                                //
-                              },
-                            ),
-                          ),
-                          SizedBox(width: 5),
-                          TextButton(
-                            onPressed: () {},
-                            child: Text(
-                              "Import Data",
-                              style: TextStyle(
-                                fontSize: 20,
-                                color: appBlack,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+                    const SizedBox(height: 30),
+                    _buildSettingItem(
+                      icon: Icons.arrow_downward_outlined,
+                      label: "Import Data",
+                      color: appVioletSoft,
+                      onTap: () {
+                        // TODO: Tambah fitur import
+                      },
                     ),
-                    SizedBox(height: 30),
-
-                    //Lougout Section
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 30),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Container(
-                            decoration: BoxDecoration(
-                              color: appBlue,
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: IconButton(
-                              icon: Icon(Icons.logout, size: 40, color: appPrimary),
-                              onPressed: () {
-                                //
-                              },
-                            ),
-                          ),
-                          SizedBox(width: 5),
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(context).pushAndRemoveUntil(
-                                MaterialPageRoute(
-                                  builder: (context) => const LoginPage(),
-                                ),
-                                (route) => false,
-                              );
-                            },
-                            child: Text(
-                              "Log Out",
-                              style: TextStyle(
-                                fontSize: 20,
-                                color: appBlack,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+                    const SizedBox(height: 30),
+                    _buildSettingItem(
+                      icon: Icons.logout,
+                      label: "Log Out",
+                      color: appBlue,
+                      onTap: () async {
+                        await FirebaseAuth.instance.signOut();
+                        // ignore: use_build_context_synchronously
+                        Navigator.of(context).pushAndRemoveUntil(
+                          MaterialPageRoute(builder: (_) => const LoginPage()),
+                          (route) => false,
+                        );
+                      },
                     ),
-                    SizedBox(height: 20),
                   ],
                 ),
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildSettingItem({
+    required IconData icon,
+    required String label,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 30),
+      child: Row(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              color: color,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: IconButton(
+              icon: Icon(icon, size: 32, color: appPrimary),
+              onPressed: onTap,
+            ),
+          ),
+          const SizedBox(width: 10),
+          TextButton(
+            onPressed: onTap,
+            child: Text(label, style: TextStyle(fontSize: 18, color: appBlack)),
+          ),
+        ],
       ),
     );
   }
