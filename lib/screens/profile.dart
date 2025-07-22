@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter1/auth/login.dart';
-import 'package:flutter1/const/color.dart';
+import 'package:budget_app/auth/login.dart';
+import 'package:budget_app/const/color.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
@@ -83,7 +83,7 @@ class _SettingsState extends State<Settings> {
     return Scaffold(
       body: SafeArea(
         child: Container(
-          color: appWhiteDark,
+          color: appBlue,
           child: Column(
             children: [
               const SizedBox(height: 20),

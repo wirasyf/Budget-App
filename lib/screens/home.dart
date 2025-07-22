@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter1/const/color.dart';
+import 'package:budget_app/const/color.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -105,7 +105,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       body: SafeArea(
         child: Container(
-          color: appWhiteDark,
+          color: appBlue,
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(

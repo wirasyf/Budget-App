@@ -16,6 +16,12 @@ class _BudgetingPageState extends State<BudgetingPage> {
   final user = FirebaseAuth.instance.currentUser;
   DateTime selectedMonth = DateTime.now();
 
+  final formatRupiah = NumberFormat.currency(
+    locale: 'id',
+    symbol: 'Rp ',
+    decimalDigits: 0,
+  );
+
   @override
   Widget build(BuildContext context) {
     final currentMonth = DateFormat('yyyy-MM').format(selectedMonth);
@@ -92,7 +98,7 @@ class _BudgetingPageState extends State<BudgetingPage> {
                             ),
                           ),
                           Text(
-                            'Rp ${budgetAmount.toInt()}',
+                            formatRupiah.format(budgetAmount),
                             style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
                           PopupMenuButton<String>(
@@ -121,8 +127,8 @@ class _BudgetingPageState extends State<BudgetingPage> {
                         value: percent,
                         backgroundColor: Colors.grey[300],
                         color: percent > 0.9
-                            ? Colors.red
-                            : (percent > 0.6 ? Colors.orange : Colors.green),
+                            ? appRed
+                            : (percent > 0.6 ? appYellow : appGreen),
                         minHeight: 10,
                       ),
                       const SizedBox(height: 8),
@@ -130,14 +136,14 @@ class _BudgetingPageState extends State<BudgetingPage> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'Digunakan: Rp ${usedAmount.toInt()}',
+                            'Digunakan: ${formatRupiah.format(usedAmount)}',
                             style: const TextStyle(fontSize: 14),
                           ),
                           Text(
-                            'Sisa: Rp ${remaining.toInt()}',
+                            'Sisa: ${formatRupiah.format(remaining)}',
                             style: TextStyle(
                               fontSize: 14,
-                              color: remaining < 0 ? Colors.red : appBlack,
+                              color: remaining < 0 ? appRed : appBlack,
                             ),
                           ),
                         ],
@@ -162,9 +168,7 @@ class _BudgetingPageState extends State<BudgetingPage> {
       helpText: 'Pilih Bulan',
     );
     if (picked != null) {
-      setState(() {
-        selectedMonth = DateTime(picked.year, picked.month);
-      });
+      setState(() => selectedMonth = DateTime(picked.year, picked.month));
     }
   }
 
@@ -214,19 +218,36 @@ class _BudgetingPageState extends State<BudgetingPage> {
               child: const Text('Batal'),
             ),
             ElevatedButton(
-              onPressed: () {
-                final amount = int.tryParse(_amountController.text);
-                if (amount != null) {
-                  final month = DateFormat('yyyy-MM').format(selectedMonth);
-                  FirebaseFirestore.instance.collection('budgets').add({
-                    'uid': user?.uid,
-                    'category': selectedCategory,
-                    'amount': amount,
-                    'used': 0,
-                    'month': month,
-                  });
+              onPressed: () async {
+                final amount = double.tryParse(_amountController.text);
+                if (amount == null) return;
+
+                final month = DateFormat('yyyy-MM').format(selectedMonth);
+                final existing = await FirebaseFirestore.instance
+                    .collection('budgets')
+                    .where('uid', isEqualTo: user?.uid)
+                    .where('category', isEqualTo: selectedCategory)
+                    .where('month', isEqualTo: month)
+                    .get();
+
+                if (existing.docs.isNotEmpty) {
                   Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Kategori sudah ada di bulan ini!'),
+                    ),
+                  );
+                  return;
                 }
+
+                await FirebaseFirestore.instance.collection('budgets').add({
+                  'uid': user?.uid,
+                  'category': selectedCategory,
+                  'amount': amount,
+                  'used': 0.0,
+                  'month': month,
+                });
+                Navigator.pop(context);
               },
               child: const Text('Simpan'),
             ),
@@ -289,14 +310,14 @@ class _BudgetingPageState extends State<BudgetingPage> {
             ),
             ElevatedButton(
               onPressed: () {
-                final newAmount = int.tryParse(_amountController.text);
-                if (newAmount != null) {
-                  doc.reference.update({
-                    'category': selectedCategory,
-                    'amount': newAmount,
-                  });
-                  Navigator.pop(context);
-                }
+                final newAmount = double.tryParse(_amountController.text);
+                if (newAmount == null) return;
+
+                doc.reference.update({
+                  'category': selectedCategory,
+                  'amount': newAmount,
+                });
+                Navigator.pop(context);
               },
               child: const Text('Simpan'),
             ),

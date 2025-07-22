@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
-import 'package:flutter1/const/color.dart';
-import 'package:flutter1/screens/add.dart';
-import 'package:flutter1/screens/detail_transaction.dart';
-import 'package:flutter1/screens/home.dart';
-import 'package:flutter1/screens/budget.dart';
-import 'package:flutter1/screens/settings.dart';
+import 'package:budget_app/const/color.dart';
+import 'package:budget_app/screens/add.dart';
+import 'package:budget_app/screens/detail_transaction.dart';
+import 'package:budget_app/screens/home.dart';
+import 'package:budget_app/screens/budget.dart';
+import 'package:budget_app/screens/profile.dart';
 
 class MainNavigation extends StatefulWidget {
   const MainNavigation({super.key});

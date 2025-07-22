@@ -49,76 +49,74 @@ class _TransactionFormPageState extends State<TransactionFormPage> {
       firstDate: DateTime(2020),
       lastDate: DateTime.now(),
     );
-    if (picked != null) {
-      setState(() => _selectedDate = picked);
-    }
+    if (picked != null) setState(() => _selectedDate = picked);
   }
 
   Future<void> _saveTransaction() async {
-    if (_formKey.currentState!.validate()) {
-      try {
-        final user = FirebaseAuth.instance.currentUser;
-        if (user == null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('User not logged in'),
-              backgroundColor: Colors.red,
-            ),
-          );
-          return;
-        }
+    if (!_formKey.currentState!.validate()) return;
 
-        final amount = double.parse(_amountController.text.trim());
-        final month = DateFormat('yyyy-MM').format(_selectedDate);
-
-        await FirebaseFirestore.instance.collection('transactions').add({
-          'uid': user.uid,
-          'title': _titleController.text.trim(),
-          'amount': amount,
-          'type': _selectedType,
-          'category': _selectedCategory,
-          'date': Timestamp.fromDate(_selectedDate),
-          'month': month,
-          'description': _descriptionController.text.trim(),
-          'created_at': FieldValue.serverTimestamp(),
-        });
-
-        await _updateBudget(
-          uid: user.uid,
-          category: _selectedCategory,
-          type: _selectedType,
-          amount: amount,
-          month: month,
-        );
-
-        _formKey.currentState!.reset();
-        _titleController.clear();
-        _amountController.clear();
-        _descriptionController.clear();
-        setState(() {
-          _selectedType = 'Expense';
-          _selectedCategory = 'Food';
-          _selectedDate = DateTime.now();
-        });
-
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Success'),
-            content: const Text('Transaction saved successfully'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('OK'),
-              ),
-            ],
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('User not logged in'),
+            backgroundColor: Colors.red,
           ),
         );
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
-        );
+        return;
       }
+
+      final amount = double.parse(_amountController.text.trim());
+      final month = DateFormat('yyyy-MM').format(_selectedDate);
+
+      await FirebaseFirestore.instance.collection('transactions').add({
+        'uid': user.uid,
+        'title': _titleController.text.trim(),
+        'amount': amount,
+        'type': _selectedType,
+        'category': _selectedCategory,
+        'date': Timestamp.fromDate(_selectedDate),
+        'month': month,
+        'description': _descriptionController.text.trim(),
+        'created_at': FieldValue.serverTimestamp(),
+      });
+
+      await _updateBudget(
+        uid: user.uid,
+        category: _selectedCategory,
+        type: _selectedType,
+        amount: amount,
+        month: month,
+      );
+
+      _formKey.currentState!.reset();
+      _titleController.clear();
+      _amountController.clear();
+      _descriptionController.clear();
+      setState(() {
+        _selectedType = 'Expense';
+        _selectedCategory = 'Food';
+        _selectedDate = DateTime.now();
+      });
+
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Success'),
+          content: const Text('Transaction saved successfully'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+      );
     }
   }
 
@@ -253,12 +251,10 @@ class _TransactionFormPageState extends State<TransactionFormPage> {
                         keyboardType: TextInputType.number,
                         decoration: _fancyInput('Amount', Icons.attach_money),
                         validator: (value) {
-                          if (value == null || value.isEmpty) {
+                          if (value == null || value.isEmpty)
                             return 'Enter amount';
-                          }
-                          if (double.tryParse(value) == null) {
+                          if (double.tryParse(value) == null)
                             return 'Enter valid number';
-                          }
                           return null;
                         },
                       ),
