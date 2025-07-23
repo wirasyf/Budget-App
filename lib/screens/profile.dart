@@ -83,7 +83,7 @@ class _SettingsState extends State<Settings> {
     return Scaffold(
       body: SafeArea(
         child: Container(
-          color: appBlue,
+          color: appWhite,
           child: Column(
             children: [
               const SizedBox(height: 20),
@@ -169,7 +169,7 @@ class _SettingsState extends State<Settings> {
                 margin: const EdgeInsets.all(20),
                 padding: const EdgeInsets.symmetric(vertical: 20),
                 decoration: BoxDecoration(
-                  color: appWhite,
+                  color: appBlue,
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Column(
@@ -179,25 +179,16 @@ class _SettingsState extends State<Settings> {
                       label: "Theme",
                       color: appVioletSoft,
                       onTap: () {
-                        // TODO: Tambah fitur theme
+                        // 
                       },
                     ),
                     const SizedBox(height: 30),
                     _buildSettingItem(
-                      icon: Icons.arrow_upward_rounded,
-                      label: "Export Data",
+                      icon: Icons.info,
+                      label: "Info Aplikasi",
                       color: appVioletSoft,
                       onTap: () {
-                        // TODO: Tambah fitur export
-                      },
-                    ),
-                    const SizedBox(height: 30),
-                    _buildSettingItem(
-                      icon: Icons.arrow_downward_outlined,
-                      label: "Import Data",
-                      color: appVioletSoft,
-                      onTap: () {
-                        // TODO: Tambah fitur import
+                        // 
                       },
                     ),
                     const SizedBox(height: 30),

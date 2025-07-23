@@ -105,7 +105,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       body: SafeArea(
         child: Container(
-          color: appBlue,
+          color: appWhite,
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
@@ -141,7 +141,7 @@ class _HomePageState extends State<HomePage> {
                   ],
                 ),
                 SizedBox(height: 20),
-                
+
                 // Real-time Balance
                 StreamBuilder<Map<String, dynamic>>(
                   stream: getTransactionSummary(),
@@ -347,17 +347,6 @@ class _HomePageState extends State<HomePage> {
                           color: appVioletSoft,
                           borderRadius: BorderRadius.circular(20),
                         ),
-                        child: TextButton(
-                          onPressed: () {},
-                          child: Text(
-                            "See All",
-                            style: TextStyle(
-                              color: appPrimary,
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
                       ),
                     ],
                   ),
@@ -401,12 +390,12 @@ class _HomePageState extends State<HomePage> {
                                       decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(14),
                                         color: isExpense
-                                            ? appGreenSoft
-                                            : appRedSoft,
+                                            ? appRedSoft
+                                            : appGreenSoft,
                                       ),
                                       child: Icon(
                                         icon,
-                                        color: isExpense ? appGreen : appRed,
+                                        color: isExpense ? appRed : appGreen,
                                       ),
                                     ),
                                     title: Text(data['title'] ?? ''),

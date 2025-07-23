@@ -1,4 +1,3 @@
-// budgeting_page.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -28,8 +27,14 @@ class _BudgetingPageState extends State<BudgetingPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Budgeting'),
+        title: const Text(
+          'Budgeting',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         centerTitle: true,
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
+        elevation: 1,
         actions: [
           IconButton(
             icon: const Icon(Icons.date_range),
@@ -39,7 +44,8 @@ class _BudgetingPageState extends State<BudgetingPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddBudgetDialog(context),
-        child: const Icon(Icons.add),
+        backgroundColor: appPrimary,
+        child: Icon(Icons.add, color: appWhite),
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
@@ -78,28 +84,38 @@ class _BudgetingPageState extends State<BudgetingPage> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),
-                elevation: 4,
+                elevation: 3,
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           _buildCategoryIcon(category),
-                          const SizedBox(width: 10),
+                          const SizedBox(width: 12),
                           Expanded(
-                            child: Text(
-                              category,
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  category,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'Anggaran: ${formatRupiah.format(budgetAmount)}',
+                                  style: const TextStyle(
+                                    fontSize: 13,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ],
                             ),
-                          ),
-                          Text(
-                            formatRupiah.format(budgetAmount),
-                            style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
                           PopupMenuButton<String>(
                             onSelected: (value) {
@@ -122,28 +138,32 @@ class _BudgetingPageState extends State<BudgetingPage> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 16),
                       LinearProgressIndicator(
                         value: percent,
                         backgroundColor: Colors.grey[300],
                         color: percent > 0.9
                             ? appRed
-                            : (percent > 0.6 ? appYellow : appGreen),
+                            : (percent > 0.6 ? appYellow : appPrimary),
                         minHeight: 10,
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 12),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'Digunakan: ${formatRupiah.format(usedAmount)}',
-                            style: const TextStyle(fontSize: 14),
+                            'Dipakai: ${formatRupiah.format(usedAmount)}',
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: Colors.black87,
+                            ),
                           ),
                           Text(
                             'Sisa: ${formatRupiah.format(remaining)}',
                             style: TextStyle(
                               fontSize: 14,
-                              color: remaining < 0 ? appRed : appBlack,
+                              fontWeight: FontWeight.bold,
+                              color: remaining < 0 ? appRed : Colors.black,
                             ),
                           ),
                         ],
@@ -180,37 +200,55 @@ class _BudgetingPageState extends State<BudgetingPage> {
       context: context,
       builder: (_) {
         return AlertDialog(
-          title: const Text('Tambah Budget'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              DropdownButtonFormField<String>(
-                value: selectedCategory,
-                items:
-                    [
-                          'Food',
-                          'Transportation',
-                          'Shopping',
-                          'Bills',
-                          'Entertainment',
-                          'Other',
-                        ]
-                        .map(
-                          (cat) =>
-                              DropdownMenuItem(value: cat, child: Text(cat)),
-                        )
-                        .toList(),
-                onChanged: (val) => selectedCategory = val!,
-                decoration: const InputDecoration(labelText: 'Kategori'),
-              ),
-              TextField(
-                controller: _amountController,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  labelText: 'Jumlah Budget (Rp)',
+          title: const Text(
+            'Tambah Budget',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                DropdownButtonFormField<String>(
+                  value: selectedCategory,
+                  items:
+                      [
+                            'Food',
+                            'Transportation',
+                            'Shopping',
+                            'Bills',
+                            'Entertainment',
+                            'Other',
+                          ]
+                          .map(
+                            (cat) =>
+                                DropdownMenuItem(value: cat, child: Text(cat)),
+                          )
+                          .toList(),
+                  onChanged: (val) => selectedCategory = val!,
+                  decoration: const InputDecoration(
+                    labelText: 'Kategori',
+                    border: OutlineInputBorder(),
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 10,
+                    ),
+                  ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 16),
+                TextField(
+                  controller: _amountController,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
+                    labelText: 'Jumlah Budget (Rp)',
+                    border: OutlineInputBorder(),
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 10,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
           actions: [
             TextButton(
@@ -249,6 +287,7 @@ class _BudgetingPageState extends State<BudgetingPage> {
                 });
                 Navigator.pop(context);
               },
+              style: ElevatedButton.styleFrom(backgroundColor: appPrimary),
               child: const Text('Simpan'),
             ),
           ],
@@ -271,37 +310,55 @@ class _BudgetingPageState extends State<BudgetingPage> {
       context: context,
       builder: (_) {
         return AlertDialog(
-          title: const Text('Edit Budget'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              DropdownButtonFormField<String>(
-                value: selectedCategory,
-                items:
-                    [
-                          'Food',
-                          'Transportation',
-                          'Shopping',
-                          'Bills',
-                          'Entertainment',
-                          'Other',
-                        ]
-                        .map(
-                          (cat) =>
-                              DropdownMenuItem(value: cat, child: Text(cat)),
-                        )
-                        .toList(),
-                onChanged: (val) => selectedCategory = val!,
-                decoration: const InputDecoration(labelText: 'Kategori'),
-              ),
-              TextField(
-                controller: _amountController,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  labelText: 'Jumlah Budget (Rp)',
+          title: const Text(
+            'Edit Budget',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                DropdownButtonFormField<String>(
+                  value: selectedCategory,
+                  items:
+                      [
+                            'Food',
+                            'Transportation',
+                            'Shopping',
+                            'Bills',
+                            'Entertainment',
+                            'Other',
+                          ]
+                          .map(
+                            (cat) =>
+                                DropdownMenuItem(value: cat, child: Text(cat)),
+                          )
+                          .toList(),
+                  onChanged: (val) => selectedCategory = val!,
+                  decoration: const InputDecoration(
+                    labelText: 'Kategori',
+                    border: OutlineInputBorder(),
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 10,
+                    ),
+                  ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 16),
+                TextField(
+                  controller: _amountController,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
+                    labelText: 'Jumlah Budget (Rp)',
+                    border: OutlineInputBorder(),
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 10,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
           actions: [
             TextButton(
@@ -319,6 +376,7 @@ class _BudgetingPageState extends State<BudgetingPage> {
                 });
                 Navigator.pop(context);
               },
+              style: ElevatedButton.styleFrom(backgroundColor: appPrimary),
               child: const Text('Simpan'),
             ),
           ],
@@ -336,13 +394,18 @@ class _BudgetingPageState extends State<BudgetingPage> {
       'Entertainment': Icons.movie,
       'Other': Icons.category,
     };
-    return CircleAvatar(
-      radius: 18,
-      backgroundColor: Colors.grey[200],
-      child: Icon(
-        icons[category] ?? Icons.category,
-        size: 20,
-        color: Colors.black,
+    return Container(
+      decoration: BoxDecoration(
+        color: appWhiteDark,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Icon(
+          icons[category] ?? Icons.category,
+          size: 20,
+          color: appYellow,
+        ),
       ),
     );
   }

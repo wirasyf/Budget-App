@@ -314,7 +314,7 @@ class _DetailTransactionState extends State<DetailTransaction> {
                               .delete();
                           Navigator.pop(context);
                         },
-                        icon: const Icon(Icons.delete),
+                        icon: Icon(Icons.delete, color: appWhite,),
                         label: const Text('Hapus'),
                       ),
                     ),
@@ -337,8 +337,8 @@ class _DetailTransactionState extends State<DetailTransaction> {
                               });
                           Navigator.pop(context);
                         },
-                        icon: const Icon(Icons.save),
-                        label: const Text('Simpan'),
+                        icon: Icon(Icons.save, color: appWhite,),
+                        label: Text('Simpan', ),
                       ),
                     ),
                   ],
@@ -497,14 +497,14 @@ class _DetailTransactionState extends State<DetailTransaction> {
                                 title: Text(
                                   title,
                                   style: TextStyle(
-                                    fontWeight: FontWeight.bold,
+                                    fontSize: 18,
                                     color: appBlack,
                                   ),
                                 ),
                                 subtitle: Text(
                                   category,
                                   style: TextStyle(
-                                    color: Colors.white70,
+                                    color: appBlack,
                                     fontSize: 13,
                                   ),
                                   overflow: TextOverflow.ellipsis,

@@ -210,10 +210,9 @@ class _TransactionFormPageState extends State<TransactionFormPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: appWhite,
       appBar: AppBar(
-        backgroundColor: Colors.grey[100],
-        elevation: 0,
+        backgroundColor: appWhite,
         title: const Text(
           'New Transaction',
           style: TextStyle(fontWeight: FontWeight.bold),
@@ -229,12 +228,12 @@ class _TransactionFormPageState extends State<TransactionFormPage> {
             children: [
               Material(
                 elevation: 3,
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(15),
                 child: Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
+                    color: appBlue,
+                    borderRadius: BorderRadius.circular(15),
                   ),
                   child: Column(
                     children: [
@@ -251,10 +250,12 @@ class _TransactionFormPageState extends State<TransactionFormPage> {
                         keyboardType: TextInputType.number,
                         decoration: _fancyInput('Amount', Icons.attach_money),
                         validator: (value) {
-                          if (value == null || value.isEmpty)
+                          if (value == null || value.isEmpty) {
                             return 'Enter amount';
-                          if (double.tryParse(value) == null)
+                          }
+                          if (double.tryParse(value) == null) {
                             return 'Enter valid number';
+                          }
                           return null;
                         },
                       ),
@@ -276,7 +277,7 @@ class _TransactionFormPageState extends State<TransactionFormPage> {
                       const SizedBox(height: 16),
                       InkWell(
                         onTap: _pickDate,
-                        borderRadius: BorderRadius.circular(25),
+                        borderRadius: BorderRadius.circular(15),
                         child: InputDecorator(
                           decoration: _fancyInput('Date', Icons.calendar_today),
                           child: Row(
@@ -315,7 +316,7 @@ class _TransactionFormPageState extends State<TransactionFormPage> {
                   ),
                 ),
               ),
-              const Spacer(),
+              Spacer(),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
@@ -327,7 +328,7 @@ class _TransactionFormPageState extends State<TransactionFormPage> {
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
+                      borderRadius: BorderRadius.circular(15),
                     ),
                     textStyle: const TextStyle(fontSize: 16),
                     elevation: 5,
