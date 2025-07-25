@@ -33,7 +33,7 @@ class _MainNavigationState extends State<MainNavigation> {
       bottomNavigationBar: ConvexAppBar(
         style: TabStyle.reactCircle,
         height: 60,
-        backgroundColor: appWhiteDark,
+        backgroundColor: appWhite,
         color: appGrey,
         activeColor: appPrimary,
         items: [

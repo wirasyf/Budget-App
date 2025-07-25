@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:budget_app/const/color.dart';
+import 'package:budget_app/main.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -31,7 +32,6 @@ class _HomePageState extends State<HomePage> {
 
   Stream<Map<String, dynamic>> getTransactionSummary() {
     final uid = FirebaseAuth.instance.currentUser!.uid;
-    getStartDateByFilter();
 
     return FirebaseFirestore.instance
         .collection('transactions')
@@ -43,11 +43,10 @@ class _HomePageState extends State<HomePage> {
 
           for (var doc in snapshot.docs) {
             final data = doc.data();
-
             final amountRaw = data['amount'] ?? 0;
             final amount = amountRaw is int ? amountRaw.toDouble() : amountRaw;
-
             final type = data['type']?.toString();
+
             if (type == 'Income') {
               income += amount;
             } else if (type == 'Expense') {
@@ -102,10 +101,12 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
       body: SafeArea(
         child: Container(
-          color: appWhite,
+          color: isDark ? appPrimaryDark : appPrimary,
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
@@ -117,11 +118,11 @@ class _HomePageState extends State<HomePage> {
                     Container(
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: appPrimary,
+                        color: isDark ? appPrimaryDark : appPrimary,
                       ),
                       child: CircleAvatar(
                         radius: 20,
-                        backgroundColor: appPrimary,
+                        backgroundColor: appYellow,
                         child: IconButton(
                           onPressed: () {},
                           icon: Icon(Icons.person, size: 20, color: appWhite),
@@ -129,67 +130,44 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                     IconButton(
-                      onPressed: () {},
-                      icon: Icon(
-                        Theme.of(context).brightness == Brightness.dark
-                            ? Icons.sunny
-                            : Icons.dark_mode,
-                      ),
+                      onPressed: () {
+                        themeNotifier.toggleTheme();
+                      },
+                      icon: Icon(isDark ? Icons.sunny : Icons.dark_mode),
                       iconSize: 28,
-                      color: appPrimary,
+                      color: appYellow,
                     ),
                   ],
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
 
-                // Real-time Balance
+                // Balance
                 StreamBuilder<Map<String, dynamic>>(
                   stream: getTransactionSummary(),
                   builder: (context, snapshot) {
-                    if (!snapshot.hasData) {
-                      return Column(
-                        children: [
-                          Text(
-                            "Total Balance",
-                            style: TextStyle(fontSize: 16, color: appBlackSoft),
-                          ),
-                          SizedBox(height: 8),
-                          Text(
-                            "",
-                            style: TextStyle(
-                              fontSize: 28,
-                              fontWeight: FontWeight.bold,
-                              color: appBlack,
-                            ),
-                          ),
-                        ],
-                      );
-                    }
-
-                    final balance = snapshot.data!['balance'] as double;
-
+                    final balance = snapshot.data?['balance'] ?? 0.0;
                     return Column(
                       children: [
                         Text(
                           "Total Balance",
-                          style: TextStyle(fontSize: 16, color: appBlackSoft),
+                          style: TextStyle(fontSize: 16, color: appBlackSoft, fontWeight: FontWeight.bold),
                         ),
-                        SizedBox(height: 8),
+                        const SizedBox(height: 8),
                         Text(
                           "Rp${balance.toStringAsFixed(0)}",
                           style: TextStyle(
                             fontSize: 28,
                             fontWeight: FontWeight.bold,
-                            color: appBlack,
+                            color: isDark ? appBlack : appWhite,
                           ),
                         ),
                       ],
                     );
                   },
                 ),
-                SizedBox(height: 25),
+                const SizedBox(height: 25),
 
-                // Real-time Income and Expense
+                // Income and Expense
                 StreamBuilder<Map<String, dynamic>>(
                   stream: getTransactionSummary(),
                   builder: (context, snapshot) {
@@ -209,45 +187,12 @@ class _HomePageState extends State<HomePage> {
                               padding: const EdgeInsets.all(16),
                               child: Row(
                                 children: [
-                                  Container(
-                                    width: 40,
-                                    height: 40,
-                                    decoration: BoxDecoration(
-                                      color: appWhite,
-                                      borderRadius: BorderRadius.circular(14),
-                                    ),
-                                    child: Icon(
-                                      Icons.arrow_downward_rounded,
-                                      color: appGreen,
-                                      size: 20,
-                                    ),
+                                  _buildIconBox(
+                                    appGreen,
+                                    Icons.arrow_downward_rounded,
                                   ),
-                                  SizedBox(width: 12),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          "Income",
-                                          style: TextStyle(
-                                            color: appWhite,
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        ),
-                                        SizedBox(height: 4),
-                                        Text(
-                                          "Rp${income.toStringAsFixed(0)}",
-                                          style: TextStyle(
-                                            color: appWhite,
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
+                                  const SizedBox(width: 12),
+                                  _buildAmountText("Income", income, appWhite),
                                 ],
                               ),
                             ),
@@ -264,44 +209,15 @@ class _HomePageState extends State<HomePage> {
                               padding: const EdgeInsets.all(16),
                               child: Row(
                                 children: [
-                                  Container(
-                                    width: 40,
-                                    height: 40,
-                                    decoration: BoxDecoration(
-                                      color: appWhite,
-                                      borderRadius: BorderRadius.circular(14),
-                                    ),
-                                    child: Icon(
-                                      Icons.arrow_upward_rounded,
-                                      color: appRed,
-                                      size: 20,
-                                    ),
+                                  _buildIconBox(
+                                    appRed,
+                                    Icons.arrow_upward_rounded,
                                   ),
-                                  SizedBox(width: 12),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          "Expense",
-                                          style: TextStyle(
-                                            color: appWhite,
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        ),
-                                        SizedBox(height: 4),
-                                        Text(
-                                          "Rp${expense.toStringAsFixed(0)}",
-                                          style: TextStyle(
-                                            color: appWhite,
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
+                                  const SizedBox(width: 12),
+                                  _buildAmountText(
+                                    "Expense",
+                                    expense,
+                                    appWhite,
                                   ),
                                 ],
                               ),
@@ -312,7 +228,7 @@ class _HomePageState extends State<HomePage> {
                     );
                   },
                 ),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
 
                 // Filter Buttons
                 Padding(
@@ -328,7 +244,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
 
-                // Section Header
+                // Recent Transaction
                 Container(
                   padding: const EdgeInsets.all(10),
                   child: Row(
@@ -338,30 +254,25 @@ class _HomePageState extends State<HomePage> {
                         "Recent Transaction",
                         style: TextStyle(
                           fontSize: 16,
-                          color: appBlack,
+                          color: isDark ? appBlack : appWhite,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: appVioletSoft,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                      ),
+                      const SizedBox(),
                     ],
                   ),
                 ),
 
-                // ListView from Firestore
+                // List Transactions
                 Expanded(
                   child: StreamBuilder<QuerySnapshot>(
                     stream: getTransactions(),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
-                        return Center(child: CircularProgressIndicator());
+                        return const Center(child: CircularProgressIndicator());
                       }
                       if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                        return Center(child: Text("No transactions"));
+                        return Center(child: Text("No transactions", style: TextStyle(color: isDark ? appBlack : appWhite ),));
                       }
 
                       return ListView(
@@ -376,7 +287,7 @@ class _HomePageState extends State<HomePage> {
                               horizontal: 10,
                             ),
                             child: Material(
-                              color: appBlue,
+                              color: isDark ? appPrimary : appPrimaryDark,
                               borderRadius: BorderRadius.circular(18),
                               child: InkWell(
                                 borderRadius: BorderRadius.circular(18),
@@ -401,9 +312,11 @@ class _HomePageState extends State<HomePage> {
                                     title: Text(data['title'] ?? ''),
                                     subtitle: Text(data['category'] ?? ''),
                                     trailing: Text(
-                                      "${isExpense ? '-' : '+'}Rp${data['amount'].toString()}",
+                                      "${isExpense ? '-' : '+'}Rp${data['amount']}",
                                       style: TextStyle(
                                         color: isExpense ? appRed : appGreen,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
                                       ),
                                     ),
                                   ),
@@ -421,6 +334,45 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildAmountText(String label, double amount, Color textColor) {
+    return Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              color: textColor,
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            "Rp${amount.toStringAsFixed(0)}",
+            style: TextStyle(
+              color: textColor,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildIconBox(Color borderColor, IconData icon) {
+    return Container(
+      width: 40,
+      height: 40,
+      decoration: BoxDecoration(
+        color: appWhite,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Icon(icon, color: borderColor, size: 20),
     );
   }
 

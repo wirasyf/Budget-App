@@ -71,7 +71,6 @@ class _SettingsState extends State<Settings> {
         });
       }
     } catch (e) {
-      print("Upload error: $e");
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('Gagal upload foto: $e')));
