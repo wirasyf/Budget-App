@@ -107,32 +107,24 @@ class _HomePageState extends State<HomePage> {
   }
 
   // Helper methods untuk warna tema gelap
-  Color get backgroundColor {
+ Color get backgroundColor {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    return isDark
-        ? const Color(0xFF0D1117)
-        : appPrimary; // GitHub dark background
+    return isDark ? const Color(0xFF0D1117) : Colors.white;
   }
 
   Color get cardBackgroundColor {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    return isDark
-        ? const Color(0xFF161B22)
-        : appPrimaryDark; // Darker card background
+    return isDark ? const Color(0xFF161B22) : appPrimary;
   }
 
   Color get primaryTextColor {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    return isDark
-        ? const Color(0xFFE6EDF3)
-        : appBlack; // Light text for dark theme
+    return isDark ? const Color(0xFFE6EDF3) : appBlack;
   }
 
   Color get secondaryTextColor {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    return isDark
-        ? const Color(0xFF8B949E)
-        : appBlackSoft; // Muted text for dark theme
+    return isDark ? const Color(0xFF8B949E) : appBlackSoft;
   }
 
   Color get appBarBackgroundColor {
@@ -142,7 +134,7 @@ class _HomePageState extends State<HomePage> {
 
   Color get appBarTextColor {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    return isDark ? const Color(0xFFE6EDF3) : appPrimaryDark;
+    return isDark ? const Color(0xFFE6EDF3) : appBlack;
   }
 
   @override
@@ -526,7 +518,7 @@ class _HomePageState extends State<HomePage> {
       curve: Curves.easeInOut,
       decoration: BoxDecoration(
         color: isSelected
-            ? (isDark ? const Color(0xFF58A6FF) : appYellow)
+            ? (isDark ?  appYellow : const Color(0xFF58A6FF))
             : (isDark ? const Color(0xFF21262D) : Colors.grey.shade200),
         borderRadius: BorderRadius.circular(12),
         border: isDark && !isSelected

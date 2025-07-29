@@ -210,7 +210,7 @@ class _BudgetingPageState extends State<BudgetingPage> {
   }
 
   Future<void> _showAddBudgetDialog(BuildContext context) async {
-    final _amountController = TextEditingController();
+    final amountController = TextEditingController();
     String selectedCategory = 'Food';
 
     await showDialog(
@@ -222,7 +222,7 @@ class _BudgetingPageState extends State<BudgetingPage> {
             'Tambah Budget',
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
-          content: _buildBudgetForm(_amountController, (val) {
+          content: _buildBudgetForm(amountController, (val) {
             selectedCategory = val!;
           }, selectedCategory),
           actions: [
@@ -232,7 +232,7 @@ class _BudgetingPageState extends State<BudgetingPage> {
             ),
             ElevatedButton(
               onPressed: () async {
-                final amount = double.tryParse(_amountController.text);
+                final amount = double.tryParse(amountController.text);
                 if (amount == null) return;
 
                 final month = DateFormat('yyyy-MM').format(selectedMonth);
@@ -244,7 +244,9 @@ class _BudgetingPageState extends State<BudgetingPage> {
                     .get();
 
                 if (existing.docs.isNotEmpty) {
+                  // ignore: use_build_context_synchronously
                   Navigator.pop(context);
+                  // ignore: use_build_context_synchronously
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text('Kategori sudah ada di bulan ini!'),
@@ -260,6 +262,7 @@ class _BudgetingPageState extends State<BudgetingPage> {
                   'used': 0.0,
                   'month': month,
                 });
+                // ignore: use_build_context_synchronously
                 Navigator.pop(context);
               },
               style: ElevatedButton.styleFrom(backgroundColor: appPrimary),
@@ -276,7 +279,7 @@ class _BudgetingPageState extends State<BudgetingPage> {
     DocumentSnapshot doc,
   ) async {
     final data = doc.data() as Map<String, dynamic>;
-    final _amountController = TextEditingController(
+    final amountController = TextEditingController(
       text: data['amount'].toString(),
     );
     String selectedCategory = data['category'];
@@ -290,7 +293,7 @@ class _BudgetingPageState extends State<BudgetingPage> {
             'Edit Budget',
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
-          content: _buildBudgetForm(_amountController, (val) {
+          content: _buildBudgetForm(amountController, (val) {
             selectedCategory = val!;
           }, selectedCategory),
           actions: [
@@ -300,7 +303,7 @@ class _BudgetingPageState extends State<BudgetingPage> {
             ),
             ElevatedButton(
               onPressed: () {
-                final newAmount = double.tryParse(_amountController.text);
+                final newAmount = double.tryParse(amountController.text);
                 if (newAmount == null) return;
                 doc.reference.update({
                   'category': selectedCategory,

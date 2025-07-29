@@ -11,6 +11,7 @@ class MainNavigation extends StatefulWidget {
   const MainNavigation({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _MainNavigationState createState() => _MainNavigationState();
 }
 
@@ -34,9 +35,9 @@ class _MainNavigationState extends State<MainNavigation> {
       bottomNavigationBar: ConvexAppBar(
         style: TabStyle.reactCircle,
         height: 60,
-        backgroundColor: isDark ? Color(0xFF30363D) : appWhite,
+        backgroundColor: isDark ?  Color(0xFF30363D) : appWhite,
         color: isDark ? Colors.grey[400]! : appGrey,
-        activeColor: isDark ? appBlue : appPrimary,
+        activeColor: isDark ? appYellow : Colors.blue,
         items: const [
           TabItem(icon: Icons.home_rounded, title: 'Home'),
           TabItem(icon: Icons.compare_arrows_rounded, title: 'Details'),

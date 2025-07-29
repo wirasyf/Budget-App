@@ -100,6 +100,7 @@ class _TransactionFormPageState extends State<TransactionFormPage> {
       });
 
       showDialog(
+        // ignore: use_build_context_synchronously
         context: context,
         builder: (context) => AlertDialog(
           title: const Text('Success'),
@@ -113,6 +114,7 @@ class _TransactionFormPageState extends State<TransactionFormPage> {
         ),
       );
     } catch (e) {
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
       );
@@ -150,7 +152,7 @@ class _TransactionFormPageState extends State<TransactionFormPage> {
       labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface),
       filled: true,
       fillColor: Theme.of(context).colorScheme.surface,
-      prefixIcon: Icon(icon, color: appPrimary),
+      prefixIcon: Icon(icon, color: Colors.blue),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(25),
         borderSide: BorderSide(color: appPrimary.withOpacity(0.5)),
@@ -340,7 +342,7 @@ class _TransactionFormPageState extends State<TransactionFormPage> {
                     icon: const Icon(Icons.save),
                     label: const Text('Save Transaction'),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: appPrimary,
+                      backgroundColor: Colors.blue,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(

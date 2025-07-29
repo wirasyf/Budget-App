@@ -72,6 +72,7 @@ class _SettingsState extends State<Settings> {
       }
     } catch (e) {
       ScaffoldMessenger.of(
+        // ignore: use_build_context_synchronously
         context,
       ).showSnackBar(SnackBar(content: Text('Gagal upload foto: $e')));
     }
@@ -98,7 +99,7 @@ class _SettingsState extends State<Settings> {
                     child: CircleAvatar(
                       key: ValueKey(photoUrl),
                       radius: 40,
-                      backgroundColor: appPrimary,
+                      backgroundColor: isDark ? appYellow : Colors.blue,
                       backgroundImage: photoUrl != null
                           ? NetworkImage(photoUrl!)
                           : null,
@@ -132,7 +133,8 @@ class _SettingsState extends State<Settings> {
                     ),
                   ),
                   IconButton(
-                    icon: Icon(Icons.edit, size: 32, color: appPrimary),
+                    icon: Icon(Icons.edit, size: 32, color: isDark ? appYellow : Colors.blue,
+                    ),
                     onPressed: () {
                       final controller = TextEditingController(text: username);
                       showDialog(
@@ -153,6 +155,7 @@ class _SettingsState extends State<Settings> {
                             TextButton(
                               onPressed: () async {
                                 await updateUsername(controller.text.trim());
+                                // ignore: use_build_context_synchronously
                                 Navigator.pop(context);
                               },
                               child: const Text("Save"),
@@ -179,7 +182,7 @@ class _SettingsState extends State<Settings> {
                   _buildSettingItem(
                     icon: Icons.color_lens,
                     label: "Theme",
-                    color: appVioletSoft,
+                    color: isDark ? appYellow : Colors.blue,
                     onTap: () {
                       // toggleTheme logic
                     },
@@ -188,7 +191,7 @@ class _SettingsState extends State<Settings> {
                   _buildSettingItem(
                     icon: Icons.info,
                     label: "Info Aplikasi",
-                    color: appVioletSoft,
+                    color: isDark ? appYellow : Colors.blue,
                     onTap: () {
                       showAboutDialog(
                         context: context,
@@ -203,9 +206,10 @@ class _SettingsState extends State<Settings> {
                   _buildSettingItem(
                     icon: Icons.logout,
                     label: "Log Out",
-                    color: appBlue,
+                    color: isDark ? appYellow : Colors.blue,
                     onTap: () async {
                       await FirebaseAuth.instance.signOut();
+                      // ignore: use_build_context_synchronously
                       Navigator.of(context).pushAndRemoveUntil(
                         MaterialPageRoute(builder: (_) => const LoginPage()),
                         (route) => false,

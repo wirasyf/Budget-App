@@ -353,6 +353,7 @@ class _DetailTransactionState extends State<DetailTransaction> {
                               .collection('transactions')
                               .doc(id)
                               .delete();
+                          // ignore: use_build_context_synchronously
                           Navigator.pop(context);
                         },
                         icon: Icon(Icons.delete, color: appWhite),
@@ -376,6 +377,7 @@ class _DetailTransactionState extends State<DetailTransaction> {
                                 'type': selectedEditType,
                                 'category': selectedEditCategory,
                               });
+                          // ignore: use_build_context_synchronously
                           Navigator.pop(context);
                         },
                         icon: Icon(Icons.save, color: appWhite),
