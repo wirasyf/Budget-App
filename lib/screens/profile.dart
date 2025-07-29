@@ -79,136 +79,143 @@ class _SettingsState extends State<Settings> {
 
   @override
   Widget build(BuildContext context) {
+    // ignore: unused_local_variable
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
+      backgroundColor: colorScheme.background,
       body: SafeArea(
-        child: Container(
-          color: appWhite,
-          child: Column(
-            children: [
-              const SizedBox(height: 20),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Row(
-                  children: [
-                    GestureDetector(
-                      onTap: pickAndUploadImage,
-                      child: CircleAvatar(
-                        key: ValueKey(photoUrl), // Memaksa refresh image
-                        radius: 40,
-                        backgroundColor: appPrimary,
-                        backgroundImage: photoUrl != null
-                            ? NetworkImage(photoUrl!)
-                            : null,
-                        child: photoUrl == null
-                            ? Icon(Icons.person, size: 50, color: appWhite)
-                            : null,
-                      ),
+        child: Column(
+          children: [
+            const SizedBox(height: 20),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Row(
+                children: [
+                  GestureDetector(
+                    onTap: pickAndUploadImage,
+                    child: CircleAvatar(
+                      key: ValueKey(photoUrl),
+                      radius: 40,
+                      backgroundColor: appPrimary,
+                      backgroundImage: photoUrl != null
+                          ? NetworkImage(photoUrl!)
+                          : null,
+                      child: photoUrl == null
+                          ? Icon(Icons.person, size: 50, color: appWhite)
+                          : null,
                     ),
-                    const SizedBox(width: 20),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            username.isNotEmpty ? username : "No Username",
-                            style: TextStyle(fontSize: 14, color: appGrey),
+                  ),
+                  const SizedBox(width: 20),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          username.isNotEmpty ? username : "No Username",
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: colorScheme.onBackground,
                           ),
-                          const SizedBox(height: 5),
-                          Text(
-                            user?.email ?? "",
-                            style: TextStyle(
-                              fontSize: 22,
-                              color: appBlack,
-                              fontWeight: FontWeight.bold,
+                        ),
+                        const SizedBox(height: 5),
+                        Text(
+                          user?.email ?? "",
+                          style: TextStyle(
+                            fontSize: 22,
+                            color: colorScheme.onBackground,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.edit, size: 32, color: appPrimary),
+                    onPressed: () {
+                      final controller = TextEditingController(text: username);
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text("Edit Username"),
+                          content: TextField(
+                            controller: controller,
+                            decoration: const InputDecoration(
+                              hintText: "Enter new username",
                             ),
                           ),
-                        ],
-                      ),
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.edit, size: 32, color: appPrimary),
-                      onPressed: () {
-                        final controller = TextEditingController(
-                          text: username,
-                        );
-                        showDialog(
-                          context: context,
-                          builder: (context) => AlertDialog(
-                            title: const Text("Edit Username"),
-                            content: TextField(
-                              controller: controller,
-                              decoration: const InputDecoration(
-                                hintText: "Enter new username",
-                              ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: const Text("Cancel"),
                             ),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.pop(context),
-                                child: const Text("Cancel"),
-                              ),
-                              TextButton(
-                                onPressed: () async {
-                                  await updateUsername(controller.text.trim());
-                                  // ignore: use_build_context_synchronously
-                                  Navigator.pop(context);
-                                },
-                                child: const Text("Save"),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
-                  ],
-                ),
+                            TextButton(
+                              onPressed: () async {
+                                await updateUsername(controller.text.trim());
+                                Navigator.pop(context);
+                              },
+                              child: const Text("Save"),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ],
               ),
-              const SizedBox(height: 30),
-              Container(
-                width: double.infinity,
-                margin: const EdgeInsets.all(20),
-                padding: const EdgeInsets.symmetric(vertical: 20),
-                decoration: BoxDecoration(
-                  color: appBlue,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Column(
-                  children: [
-                    _buildSettingItem(
-                      icon: Icons.color_lens,
-                      label: "Theme",
-                      color: appVioletSoft,
-                      onTap: () {
-                        // 
-                      },
-                    ),
-                    const SizedBox(height: 30),
-                    _buildSettingItem(
-                      icon: Icons.info,
-                      label: "Info Aplikasi",
-                      color: appVioletSoft,
-                      onTap: () {
-                        // 
-                      },
-                    ),
-                    const SizedBox(height: 30),
-                    _buildSettingItem(
-                      icon: Icons.logout,
-                      label: "Log Out",
-                      color: appBlue,
-                      onTap: () async {
-                        await FirebaseAuth.instance.signOut();
-                        // ignore: use_build_context_synchronously
-                        Navigator.of(context).pushAndRemoveUntil(
-                          MaterialPageRoute(builder: (_) => const LoginPage()),
-                          (route) => false,
-                        );
-                      },
-                    ),
-                  ],
-                ),
+            ),
+            const SizedBox(height: 30),
+            Container(
+              width: double.infinity,
+              margin: const EdgeInsets.all(20),
+              padding: const EdgeInsets.symmetric(vertical: 20),
+              decoration: BoxDecoration(
+                color: colorScheme.surface,
+                borderRadius: BorderRadius.circular(20),
               ),
-            ],
-          ),
+              child: Column(
+                children: [
+                  _buildSettingItem(
+                    icon: Icons.color_lens,
+                    label: "Theme",
+                    color: appVioletSoft,
+                    onTap: () {
+                      // toggleTheme logic
+                    },
+                  ),
+                  const SizedBox(height: 30),
+                  _buildSettingItem(
+                    icon: Icons.info,
+                    label: "Info Aplikasi",
+                    color: appVioletSoft,
+                    onTap: () {
+                      showAboutDialog(
+                        context: context,
+                        applicationName: 'Budget App',
+                        applicationVersion: '1.0.0',
+                        applicationLegalese:
+                            '© 2025 Budget App by Your Company',
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 30),
+                  _buildSettingItem(
+                    icon: Icons.logout,
+                    label: "Log Out",
+                    color: appBlue,
+                    onTap: () async {
+                      await FirebaseAuth.instance.signOut();
+                      Navigator.of(context).pushAndRemoveUntil(
+                        MaterialPageRoute(builder: (_) => const LoginPage()),
+                        (route) => false,
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -220,6 +227,7 @@ class _SettingsState extends State<Settings> {
     required Color color,
     required VoidCallback onTap,
   }) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 30),
       child: Row(
@@ -237,7 +245,10 @@ class _SettingsState extends State<Settings> {
           const SizedBox(width: 10),
           TextButton(
             onPressed: onTap,
-            child: Text(label, style: TextStyle(fontSize: 18, color: appBlack)),
+            child: Text(
+              label,
+              style: TextStyle(fontSize: 18, color: colorScheme.onBackground),
+            ),
           ),
         ],
       ),

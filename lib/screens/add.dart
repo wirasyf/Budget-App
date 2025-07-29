@@ -1,4 +1,3 @@
-// transaction_form_page.dart
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -148,9 +147,9 @@ class _TransactionFormPageState extends State<TransactionFormPage> {
   InputDecoration _fancyInput(String label, IconData icon) {
     return InputDecoration(
       labelText: label,
-      labelStyle: const TextStyle(color: Colors.grey),
+      labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface),
       filled: true,
-      fillColor: Colors.white,
+      fillColor: Theme.of(context).colorScheme.surface,
       prefixIcon: Icon(icon, color: appPrimary),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(25),
@@ -178,10 +177,10 @@ class _TransactionFormPageState extends State<TransactionFormPage> {
             decoration: BoxDecoration(
               color: isSelected
                   ? appPrimary.withOpacity(0.2)
-                  : Colors.grey[100],
+                  : Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: isSelected ? appPrimary : Colors.grey.shade300,
+                color: isSelected ? appPrimary : Colors.grey.shade400,
                 width: 1.5,
               ),
             ),
@@ -190,7 +189,12 @@ class _TransactionFormPageState extends State<TransactionFormPage> {
               children: [
                 Icon(_categoryIcons[cat], size: 20, color: appPrimary),
                 const SizedBox(width: 6),
-                Text(cat),
+                Text(
+                  cat,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                ),
               ],
             ),
           ),
@@ -210,132 +214,146 @@ class _TransactionFormPageState extends State<TransactionFormPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: appWhite,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: appWhite,
-        title: const Text(
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
+        title: Text(
           'New Transaction',
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color:
+                Theme.of(context).appBarTheme.foregroundColor ??
+                Theme.of(context).colorScheme.onBackground,
+          ),
         ),
-        centerTitle: true,
+        iconTheme: IconThemeData(color: Theme.of(context).iconTheme.color),
       ),
       body: AnimatedContainer(
         duration: const Duration(milliseconds: 500),
         padding: const EdgeInsets.all(20),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              Material(
-                elevation: 3,
-                borderRadius: BorderRadius.circular(15),
-                child: Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: appBlue,
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  child: Column(
-                    children: [
-                      TextFormField(
-                        controller: _titleController,
-                        decoration: _fancyInput('Title', Icons.title),
-                        validator: (value) => value == null || value.isEmpty
-                            ? 'Enter title'
-                            : null,
-                      ),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        controller: _amountController,
-                        keyboardType: TextInputType.number,
-                        decoration: _fancyInput('Amount', Icons.attach_money),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Enter amount';
-                          }
-                          if (double.tryParse(value) == null) {
-                            return 'Enter valid number';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 16),
-                      DropdownButtonFormField<String>(
-                        value: _selectedType,
-                        items: _types
-                            .map(
-                              (type) => DropdownMenuItem(
-                                value: type,
-                                child: Text(type),
-                              ),
-                            )
-                            .toList(),
-                        decoration: _fancyInput('Type', Icons.swap_horiz),
-                        onChanged: (val) =>
-                            setState(() => _selectedType = val!),
-                      ),
-                      const SizedBox(height: 16),
-                      InkWell(
-                        onTap: _pickDate,
-                        borderRadius: BorderRadius.circular(15),
-                        child: InputDecorator(
-                          decoration: _fancyInput('Date', Icons.calendar_today),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                '${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
-                                style: const TextStyle(fontSize: 16),
-                              ),
-                              const Icon(Icons.arrow_drop_down),
-                            ],
+        child: SingleChildScrollView(
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Material(
+                  elevation: 3,
+                  borderRadius: BorderRadius.circular(15),
+                  color: Theme.of(context).colorScheme.surface,
+                  child: Container(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      children: [
+                        TextFormField(
+                          controller: _titleController,
+                          decoration: _fancyInput('Title', Icons.title),
+                          validator: (value) => value == null || value.isEmpty
+                              ? 'Enter title'
+                              : null,
+                        ),
+                        const SizedBox(height: 16),
+                        TextFormField(
+                          controller: _amountController,
+                          keyboardType: TextInputType.number,
+                          decoration: _fancyInput('Amount', Icons.attach_money),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Enter amount';
+                            }
+                            if (double.tryParse(value) == null) {
+                              return 'Enter valid number';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 16),
+                        DropdownButtonFormField<String>(
+                          value: _selectedType,
+                          items: _types
+                              .map(
+                                (type) => DropdownMenuItem(
+                                  value: type,
+                                  child: Text(type),
+                                ),
+                              )
+                              .toList(),
+                          decoration: _fancyInput('Type', Icons.swap_horiz),
+                          onChanged: (val) =>
+                              setState(() => _selectedType = val!),
+                        ),
+                        const SizedBox(height: 16),
+                        InkWell(
+                          onTap: _pickDate,
+                          borderRadius: BorderRadius.circular(15),
+                          child: InputDecorator(
+                            decoration: _fancyInput(
+                              'Date',
+                              Icons.calendar_today,
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  '${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurface,
+                                  ),
+                                ),
+                                const Icon(Icons.arrow_drop_down),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        controller: _descriptionController,
-                        maxLines: 2,
-                        decoration: _fancyInput('Description', Icons.notes),
-                      ),
-                      const SizedBox(height: 20),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          'Category',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                            color: Colors.grey[700],
+                        const SizedBox(height: 16),
+                        TextFormField(
+                          controller: _descriptionController,
+                          maxLines: 2,
+                          decoration: _fancyInput('Description', Icons.notes),
+                        ),
+                        const SizedBox(height: 20),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            'Category',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 10),
-                      _buildCategorySelector(),
-                    ],
-                  ),
-                ),
-              ),
-              Spacer(),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: _saveTransaction,
-                  icon: const Icon(Icons.save),
-                  label: const Text('Save Transaction'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: appPrimary,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15),
+                        const SizedBox(height: 10),
+                        _buildCategorySelector(),
+                      ],
                     ),
-                    textStyle: const TextStyle(fontSize: 16),
-                    elevation: 5,
                   ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 30),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: _saveTransaction,
+                    icon: const Icon(Icons.save),
+                    label: const Text('Save Transaction'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: appPrimary,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      textStyle: const TextStyle(fontSize: 16),
+                      elevation: 5,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+              ],
+            ),
           ),
         ),
       ),

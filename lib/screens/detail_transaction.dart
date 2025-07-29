@@ -37,6 +37,32 @@ class _DetailTransactionState extends State<DetailTransaction> {
 
   final List<String> types = ['All', 'Expense', 'Income'];
 
+  // THEME COLORS
+  Color get backgroundColor {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return isDark ? const Color(0xFF0D1117) : appPrimary;
+  }
+
+  Color get cardBackgroundColor {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return isDark ? const Color(0xFF161B22) : appPrimaryDark;
+  }
+
+  Color get primaryTextColor {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return isDark ? const Color(0xFFE6EDF3) : appBlack;
+  }
+
+  Color get secondaryTextColor {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return isDark ? const Color(0xFF8B949E) : appBlackSoft;
+  }
+
+  Color get iconBackgroundColor {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return isDark ? const Color(0xFF21262D) : Colors.grey.shade200;
+  }
+
   void _openFilterDialog() {
     showModalBottomSheet(
       context: context,
@@ -46,36 +72,45 @@ class _DetailTransactionState extends State<DetailTransaction> {
       builder: (context) {
         String tempType = selectedType;
         String tempCategory = selectedCategory;
+        String tempDateMode = selectedDateMode;
 
         return Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text(
+              Text(
                 'Filter Transaksi',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: primaryTextColor,
+                ),
+              ),
+              const SizedBox(height: 10),
+              DropdownButtonFormField<String>(
+                value: tempDateMode,
+                items: ['Daily', 'Monthly', 'Yearly'].map((mode) {
+                  return DropdownMenuItem(value: mode, child: Text(mode));
+                }).toList(),
+                onChanged: (val) => tempDateMode = val!,
+                decoration: const InputDecoration(labelText: 'Mode Tanggal'),
               ),
               const SizedBox(height: 10),
               DropdownButtonFormField<String>(
                 value: tempType,
-                items: types
-                    .map(
-                      (type) =>
-                          DropdownMenuItem(value: type, child: Text(type)),
-                    )
-                    .toList(),
+                items: types.map((type) {
+                  return DropdownMenuItem(value: type, child: Text(type));
+                }).toList(),
                 onChanged: (val) => tempType = val!,
                 decoration: const InputDecoration(labelText: 'Tipe Transaksi'),
               ),
               const SizedBox(height: 10),
               DropdownButtonFormField<String>(
                 value: tempCategory,
-                items: categories
-                    .map(
-                      (cat) => DropdownMenuItem(value: cat, child: Text(cat)),
-                    )
-                    .toList(),
+                items: categories.map((cat) {
+                  return DropdownMenuItem(value: cat, child: Text(cat));
+                }).toList(),
                 onChanged: (val) => tempCategory = val!,
                 decoration: const InputDecoration(labelText: 'Kategori'),
               ),
@@ -85,6 +120,7 @@ class _DetailTransactionState extends State<DetailTransaction> {
                   setState(() {
                     selectedType = tempType;
                     selectedCategory = tempCategory;
+                    selectedDateMode = tempDateMode;
                   });
                   Navigator.pop(context);
                 },
@@ -96,6 +132,7 @@ class _DetailTransactionState extends State<DetailTransaction> {
                     selectedType = 'All';
                     selectedCategory = 'All';
                     selectedDate = DateTime.now();
+                    selectedDateMode = 'Monthly';
                   });
                   Navigator.pop(context);
                 },
@@ -266,9 +303,13 @@ class _DetailTransactionState extends State<DetailTransaction> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text(
+                Text(
                   'Edit Transaksi',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: primaryTextColor,
+                  ),
                 ),
                 const SizedBox(height: 10),
                 TextField(
@@ -314,7 +355,7 @@ class _DetailTransactionState extends State<DetailTransaction> {
                               .delete();
                           Navigator.pop(context);
                         },
-                        icon: Icon(Icons.delete, color: appWhite,),
+                        icon: Icon(Icons.delete, color: appWhite),
                         label: const Text('Hapus'),
                       ),
                     ),
@@ -337,8 +378,8 @@ class _DetailTransactionState extends State<DetailTransaction> {
                               });
                           Navigator.pop(context);
                         },
-                        icon: Icon(Icons.save, color: appWhite,),
-                        label: Text('Simpan', ),
+                        icon: Icon(Icons.save, color: appWhite),
+                        label: const Text('Simpan'),
                       ),
                     ),
                   ],
@@ -385,54 +426,43 @@ class _DetailTransactionState extends State<DetailTransaction> {
     }
 
     return Scaffold(
+      backgroundColor: backgroundColor,
       body: SafeArea(
         child: Column(
           children: [
             Container(
-              color: appBlue,
+              color: cardBackgroundColor,
               child: Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 10,
                   vertical: 5,
                 ),
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    DropdownButton<String>(
-                      value: selectedDateMode,
-                      items: ['Daily', 'Monthly', 'Yearly']
-                          .map(
-                            (mode) => DropdownMenuItem(
-                              value: mode,
-                              child: Text(mode),
-                            ),
-                          )
-                          .toList(),
-                      onChanged: (val) =>
-                          setState(() => selectedDateMode = val!),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: TextButton.icon(
-                        onPressed: () => _pickDate(context),
-                        icon: const Icon(Icons.calendar_today),
-                        label: Text(
-                          selectedDateMode == 'Daily'
-                              ? "${selectedDate.day.toString().padLeft(2, '0')}/${selectedDate.month.toString().padLeft(2, '0')}/${selectedDate.year}"
-                              : selectedDateMode == 'Monthly'
-                              ? "${selectedDate.month.toString().padLeft(2, '0')}/${selectedDate.year}"
-                              : "${selectedDate.year}",
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: appBlack,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          overflow: TextOverflow.ellipsis,
+                    TextButton.icon(
+                      onPressed: () => _pickDate(context),
+                      icon: Icon(Icons.calendar_today, color: primaryTextColor),
+                      label: Text(
+                        selectedDateMode == 'Daily'
+                            ? "${selectedDate.day.toString().padLeft(2, '0')}/${selectedDate.month.toString().padLeft(2, '0')}/${selectedDate.year}"
+                            : selectedDateMode == 'Monthly'
+                            ? "${selectedDate.month.toString().padLeft(2, '0')}/${selectedDate.year}"
+                            : "${selectedDate.year}",
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: primaryTextColor,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
                     IconButton(
                       onPressed: _openFilterDialog,
-                      icon: Icon(Icons.filter_list, size: 30, color: appBlack),
+                      icon: Icon(
+                        Icons.filter_list,
+                        size: 30,
+                        color: primaryTextColor,
+                      ),
                     ),
                   ],
                 ),
@@ -443,16 +473,25 @@ class _DetailTransactionState extends State<DetailTransaction> {
                 stream: query.snapshots(),
                 builder: (context, snapshot) {
                   if (snapshot.hasError) {
-                    return Center(child: Text('Error: ${snapshot.error}'));
+                    return Center(
+                      child: Text(
+                        'Error: ${snapshot.error}',
+                        style: TextStyle(color: primaryTextColor),
+                      ),
+                    );
                   }
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
                   }
 
                   final docs = snapshot.data?.docs ?? [];
-
                   if (docs.isEmpty) {
-                    return const Center(child: Text('Tidak ada transaksi.'));
+                    return Center(
+                      child: Text(
+                        'Tidak ada transaksi.',
+                        style: TextStyle(color: secondaryTextColor),
+                      ),
+                    );
                   }
 
                   return ListView.builder(
@@ -471,7 +510,7 @@ class _DetailTransactionState extends State<DetailTransaction> {
                           vertical: 8,
                         ),
                         child: Material(
-                          color: appBlue,
+                          color: cardBackgroundColor,
                           borderRadius: BorderRadius.circular(18),
                           child: InkWell(
                             borderRadius: BorderRadius.circular(18),
@@ -486,8 +525,14 @@ class _DetailTransactionState extends State<DetailTransaction> {
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(14),
                                     color: isExpense
-                                        ? appRedSoft
-                                        : appGreenSoft,
+                                        ? (Theme.of(context).brightness ==
+                                                  Brightness.dark
+                                              ? appRed.withOpacity(0.2)
+                                              : appRedSoft)
+                                        : (Theme.of(context).brightness ==
+                                                  Brightness.dark
+                                              ? appGreen.withOpacity(0.2)
+                                              : appGreenSoft),
                                   ),
                                   child: Icon(
                                     categoryIcons[category] ?? Icons.category,
@@ -498,13 +543,13 @@ class _DetailTransactionState extends State<DetailTransaction> {
                                   title,
                                   style: TextStyle(
                                     fontSize: 18,
-                                    color: appBlack,
+                                    color: primaryTextColor,
                                   ),
                                 ),
                                 subtitle: Text(
                                   category,
                                   style: TextStyle(
-                                    color: appBlack,
+                                    color: secondaryTextColor,
                                     fontSize: 13,
                                   ),
                                   overflow: TextOverflow.ellipsis,
