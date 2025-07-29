@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:budget_app/const/color.dart';
+import 'package:budget_app/presentation/theme/color.dart';
 import 'package:budget_app/main.dart';
 
 class HomePage extends StatefulWidget {
@@ -107,7 +107,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   // Helper methods untuk warna tema gelap
- Color get backgroundColor {
+  Color get backgroundColor {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return isDark ? const Color(0xFF0D1117) : Colors.white;
   }
@@ -518,7 +518,7 @@ class _HomePageState extends State<HomePage> {
       curve: Curves.easeInOut,
       decoration: BoxDecoration(
         color: isSelected
-            ? (isDark ?  appYellow : const Color(0xFF58A6FF))
+            ? (isDark ? appYellow : const Color(0xFF58A6FF))
             : (isDark ? const Color(0xFF21262D) : Colors.grey.shade200),
         borderRadius: BorderRadius.circular(12),
         border: isDark && !isSelected

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
-import 'package:budget_app/const/color.dart';
-import 'package:budget_app/screens/add.dart';
-import 'package:budget_app/screens/detail_transaction.dart';
-import 'package:budget_app/screens/home.dart';
-import 'package:budget_app/screens/budget.dart';
-import 'package:budget_app/screens/profile.dart';
+import 'package:budget_app/presentation/theme/color.dart';
+import 'package:budget_app/presentation/pages/add.dart';
+import 'package:budget_app/presentation/pages/detail_transaction.dart';
+import 'package:budget_app/presentation/pages/home.dart';
+import 'package:budget_app/presentation/pages/budget.dart';
+import 'package:budget_app/presentation/pages/profile.dart';
 
 class MainNavigation extends StatefulWidget {
   const MainNavigation({super.key});
@@ -35,7 +35,7 @@ class _MainNavigationState extends State<MainNavigation> {
       bottomNavigationBar: ConvexAppBar(
         style: TabStyle.reactCircle,
         height: 60,
-        backgroundColor: isDark ?  Color(0xFF30363D) : appWhite,
+        backgroundColor: isDark ? Color(0xFF30363D) : appWhite,
         color: isDark ? Colors.grey[400]! : appGrey,
         activeColor: isDark ? appYellow : Colors.blue,
         items: const [

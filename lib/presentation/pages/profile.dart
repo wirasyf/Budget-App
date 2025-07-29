@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:budget_app/auth/login.dart';
-import 'package:budget_app/const/color.dart';
+import 'package:budget_app/presentation/auth/login.dart';
+import 'package:budget_app/presentation/theme/color.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
@@ -133,7 +133,10 @@ class _SettingsState extends State<Settings> {
                     ),
                   ),
                   IconButton(
-                    icon: Icon(Icons.edit, size: 32, color: isDark ? appYellow : Colors.blue,
+                    icon: Icon(
+                      Icons.edit,
+                      size: 32,
+                      color: isDark ? appYellow : Colors.blue,
                     ),
                     onPressed: () {
                       final controller = TextEditingController(text: username);

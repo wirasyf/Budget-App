@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
-import '../const/color.dart';
+import '../theme/color.dart';
 
 class TransactionFormPage extends StatefulWidget {
   const TransactionFormPage({super.key});

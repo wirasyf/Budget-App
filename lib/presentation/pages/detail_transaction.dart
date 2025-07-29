@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:budget_app/const/color.dart';
+import 'package:budget_app/presentation/theme/color.dart';
 
 class DetailTransaction extends StatefulWidget {
   const DetailTransaction({super.key});
