@@ -1,11 +1,10 @@
-import 'dart:io';
+import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:budget_app/presentation/auth/login.dart';
-import 'package:budget_app/presentation/theme/color.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:firebase_storage/firebase_storage.dart';
+import 'package:budget_app/presentation/auth/login.dart';
+import 'package:budget_app/presentation/theme/color.dart';
 
 class Settings extends StatefulWidget {
   const Settings({super.key});
@@ -17,10 +16,9 @@ class Settings extends StatefulWidget {
 class _SettingsState extends State<Settings> {
   final user = FirebaseAuth.instance.currentUser;
   final firestore = FirebaseFirestore.instance;
-  final storage = FirebaseStorage.instance;
 
   String username = "";
-  String? photoUrl;
+  String? base64Image;
 
   @override
   void initState() {
@@ -28,6 +26,7 @@ class _SettingsState extends State<Settings> {
     loadUserData();
   }
 
+  /// Ambil data user dari Firestore
   Future<void> loadUserData() async {
     if (user == null) return;
 
@@ -35,11 +34,12 @@ class _SettingsState extends State<Settings> {
     if (snapshot.exists) {
       setState(() {
         username = snapshot.data()?['username'] ?? '';
-        photoUrl = snapshot.data()?['photoUrl'];
+        base64Image = snapshot.data()?['photoData'];
       });
     }
   }
 
+  /// Update username di Firestore
   Future<void> updateUsername(String newUsername) async {
     if (user == null) return;
 
@@ -52,35 +52,37 @@ class _SettingsState extends State<Settings> {
     });
   }
 
+  /// Ambil gambar dari galeri lalu simpan base64 ke Firestore
   Future<void> pickAndUploadImage() async {
     try {
       final picker = ImagePicker();
-      final picked = await picker.pickImage(source: ImageSource.gallery);
+      final picked = await picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 50, // compress image
+      );
 
       if (picked != null && user != null) {
-        final ref = storage.ref().child('profile/${user!.uid}.jpg');
-        await ref.putFile(File(picked.path));
-        final downloadUrl = await ref.getDownloadURL();
+        final bytes = await picked.readAsBytes();
+        final base64 = base64Encode(bytes);
 
+        // Simpan base64 ke Firestore
         await firestore.collection('users').doc(user!.uid).set({
-          'photoUrl': downloadUrl,
+          'photoData': base64,
         }, SetOptions(merge: true));
 
         setState(() {
-          photoUrl = downloadUrl;
+          base64Image = base64;
         });
       }
     } catch (e) {
       ScaffoldMessenger.of(
-        // ignore: use_build_context_synchronously
         context,
-      ).showSnackBar(SnackBar(content: Text('Gagal upload foto: $e')));
+      ).showSnackBar(SnackBar(content: Text('Gagal upload gambar: $e')));
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    // ignore: unused_local_variable
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final colorScheme = Theme.of(context).colorScheme;
 
@@ -97,13 +99,13 @@ class _SettingsState extends State<Settings> {
                   GestureDetector(
                     onTap: pickAndUploadImage,
                     child: CircleAvatar(
-                      key: ValueKey(photoUrl),
+                      key: ValueKey(base64Image),
                       radius: 40,
                       backgroundColor: isDark ? appYellow : Colors.blue,
-                      backgroundImage: photoUrl != null
-                          ? NetworkImage(photoUrl!)
+                      backgroundImage: base64Image != null
+                          ? MemoryImage(base64Decode(base64Image!))
                           : null,
-                      child: photoUrl == null
+                      child: base64Image == null
                           ? Icon(Icons.person, size: 50, color: appWhite)
                           : null,
                     ),
@@ -158,7 +160,6 @@ class _SettingsState extends State<Settings> {
                             TextButton(
                               onPressed: () async {
                                 await updateUsername(controller.text.trim());
-                                // ignore: use_build_context_synchronously
                                 Navigator.pop(context);
                               },
                               child: const Text("Save"),
@@ -203,7 +204,6 @@ class _SettingsState extends State<Settings> {
                     color: isDark ? appYellow : Colors.blue,
                     onTap: () async {
                       await FirebaseAuth.instance.signOut();
-                      // ignore: use_build_context_synchronously
                       Navigator.of(context).pushAndRemoveUntil(
                         MaterialPageRoute(builder: (_) => const LoginPage()),
                         (route) => false,
