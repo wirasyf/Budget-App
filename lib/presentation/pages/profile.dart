@@ -76,6 +76,7 @@ class _SettingsState extends State<Settings> {
       }
     } catch (e) {
       ScaffoldMessenger.of(
+        // ignore: use_build_context_synchronously
         context,
       ).showSnackBar(SnackBar(content: Text('Gagal upload gambar: $e')));
     }
@@ -160,6 +161,7 @@ class _SettingsState extends State<Settings> {
                             TextButton(
                               onPressed: () async {
                                 await updateUsername(controller.text.trim());
+                                // ignore: use_build_context_synchronously
                                 Navigator.pop(context);
                               },
                               child: const Text("Save"),
@@ -204,6 +206,7 @@ class _SettingsState extends State<Settings> {
                     color: isDark ? appYellow : Colors.blue,
                     onTap: () async {
                       await FirebaseAuth.instance.signOut();
+                      // ignore: use_build_context_synchronously
                       Navigator.of(context).pushAndRemoveUntil(
                         MaterialPageRoute(builder: (_) => const LoginPage()),
                         (route) => false,

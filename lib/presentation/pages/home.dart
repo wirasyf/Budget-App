@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:budget_app/presentation/theme/color.dart';
 import 'package:budget_app/main.dart';
+import 'package:intl/intl.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -14,6 +15,9 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int selectedIndex = 0;
   late final Stream<Map<String, dynamic>> transactionSummaryStream;
+
+  bool isSelecting = false;
+  Set<String> selectedIds = {};
 
   @override
   void initState() {
@@ -106,7 +110,154 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  // Helper methods untuk warna tema gelap
+  void _showEditTransactionDialog(DocumentSnapshot doc) {
+    final data = doc.data() as Map<String, dynamic>;
+    final id = doc.id;
+
+    TextEditingController titleController = TextEditingController(
+      text: data['title'],
+    );
+    TextEditingController amountController = TextEditingController(
+      text: data['amount'].toString(),
+    );
+
+    String selectedEditCategory = data['category'];
+    String selectedEditType = data['type'];
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom,
+                left: 16,
+                right: 16,
+                top: 20,
+              ),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'Edit Transaksi',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: primaryTextColor,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    TextField(
+                      controller: titleController,
+                      decoration: const InputDecoration(labelText: 'Judul'),
+                    ),
+                    const SizedBox(height: 10),
+                    TextField(
+                      controller: amountController,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(labelText: 'Nominal'),
+                    ),
+                    const SizedBox(height: 10),
+                    DropdownButtonFormField<String>(
+                      value: selectedEditType,
+                      items: ['Income', 'Expense']
+                          .map(
+                            (e) => DropdownMenuItem(value: e, child: Text(e)),
+                          )
+                          .toList(),
+                      onChanged: (val) =>
+                          setModalState(() => selectedEditType = val!),
+                      decoration: const InputDecoration(labelText: 'Tipe'),
+                    ),
+                    const SizedBox(height: 10),
+                    DropdownButtonFormField<String>(
+                      value: selectedEditCategory,
+                      items:
+                          [
+                                'Food',
+                                'Transportation',
+                                'Shopping',
+                                'Bills',
+                                'Entertainment',
+                                'Salary',
+                                'Gift',
+                                'Investment',
+                                'Health',
+                                'Other',
+                              ]
+                              .map(
+                                (e) =>
+                                    DropdownMenuItem(value: e, child: Text(e)),
+                              )
+                              .toList(),
+                      onChanged: (val) =>
+                          setModalState(() => selectedEditCategory = val!),
+                      decoration: const InputDecoration(labelText: 'Kategori'),
+                    ),
+                    const SizedBox(height: 20),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: appRed,
+                            ),
+                            onPressed: () async {
+                              await FirebaseFirestore.instance
+                                  .collection('transactions')
+                                  .doc(id)
+                                  .delete();
+                              // ignore: use_build_context_synchronously
+                              Navigator.pop(context);
+                            },
+                            icon: Icon(Icons.delete, color: Colors.white),
+                            label: const Text('Hapus'),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: appGreen,
+                            ),
+                            onPressed: () async {
+                              await FirebaseFirestore.instance
+                                  .collection('transactions')
+                                  .doc(id)
+                                  .update({
+                                    'title': titleController.text,
+                                    'amount':
+                                        int.tryParse(amountController.text) ??
+                                        0,
+                                    'type': selectedEditType,
+                                    'category': selectedEditCategory,
+                                  });
+                              // ignore: use_build_context_synchronously
+                              Navigator.pop(context);
+                            },
+                            icon: Icon(Icons.save, color: Colors.white),
+                            label: const Text('Simpan'),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
   Color get backgroundColor {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return isDark ? const Color(0xFF0D1117) : Colors.white;
@@ -155,14 +306,59 @@ class _HomePageState extends State<HomePage> {
         ),
         actions: [
           IconButton(
-            onPressed: () {
-              themeNotifier.toggleTheme();
-            },
+            onPressed: () => themeNotifier.toggleTheme(),
             icon: Icon(isDark ? Icons.light_mode : Icons.dark_mode),
             color: appBarTextColor,
           ),
         ],
       ),
+      floatingActionButton: isSelecting
+          ? FloatingActionButton.extended(
+              backgroundColor: appRed,
+              icon: const Icon(Icons.delete),
+              label: Text('Hapus (${selectedIds.length})'),
+              onPressed: () async {
+                final confirm = await showDialog<bool>(
+                  context: context,
+                  builder: (_) => AlertDialog(
+                    title: const Text('Hapus Transaksi'),
+                    content: Text(
+                      'Yakin ingin menghapus ${selectedIds.length} transaksi?',
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, false),
+                        child: const Text('Batal'),
+                      ),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: appRed,
+                        ),
+                        onPressed: () => Navigator.pop(context, true),
+                        child: const Text('Hapus'),
+                      ),
+                    ],
+                  ),
+                );
+
+                if (confirm == true) {
+                  final batch = FirebaseFirestore.instance.batch();
+                  for (final id in selectedIds) {
+                    batch.delete(
+                      FirebaseFirestore.instance
+                          .collection('transactions')
+                          .doc(id),
+                    );
+                  }
+                  await batch.commit();
+                  setState(() {
+                    isSelecting = false;
+                    selectedIds.clear();
+                  });
+                }
+              },
+            )
+          : null,
       body: SafeArea(
         child: Container(
           color: backgroundColor,
@@ -180,7 +376,7 @@ class _HomePageState extends State<HomePage> {
                     final expense = (data['expense'] ?? 0.0) as double;
 
                     return Container(
-                      padding: EdgeInsets.all(20),
+                      padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
                         color: cardBackgroundColor,
                         borderRadius: BorderRadius.circular(20),
@@ -282,7 +478,6 @@ class _HomePageState extends State<HomePage> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const SizedBox(),
                     ],
                   ),
                 ),
@@ -327,6 +522,10 @@ class _HomePageState extends State<HomePage> {
                           final data = doc.data() as Map<String, dynamic>;
                           final isExpense = data['type'] == 'Expense';
                           final icon = getCategoryIcon(data['category'] ?? '');
+                          final date = (data['date'] as Timestamp?)?.toDate();
+                          final dateText = date != null
+                              ? DateFormat('d MMM yy').format(date)
+                              : '';
 
                           return Container(
                             margin: const EdgeInsets.symmetric(
@@ -338,7 +537,28 @@ class _HomePageState extends State<HomePage> {
                               borderRadius: BorderRadius.circular(16),
                               child: InkWell(
                                 borderRadius: BorderRadius.circular(16),
-                                onTap: () {},
+                                onLongPress: () {
+                                  setState(() {
+                                    isSelecting = true;
+                                    selectedIds.add(doc.id);
+                                  });
+                                },
+                                onTap: () {
+                                  if (isSelecting) {
+                                    setState(() {
+                                      if (selectedIds.contains(doc.id)) {
+                                        selectedIds.remove(doc.id);
+                                      } else {
+                                        selectedIds.add(doc.id);
+                                      }
+                                      if (selectedIds.isEmpty) {
+                                        isSelecting = false;
+                                      }
+                                    });
+                                  } else {
+                                    _showEditTransactionDialog(doc);
+                                  }
+                                },
                                 child: Container(
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(16),
@@ -350,9 +570,25 @@ class _HomePageState extends State<HomePage> {
                                         : null,
                                   ),
                                   child: Padding(
-                                    padding: const EdgeInsets.all(16),
+                                    padding: const EdgeInsets.all(12),
                                     child: Row(
                                       children: [
+                                        if (isSelecting)
+                                          Checkbox(
+                                            value: selectedIds.contains(doc.id),
+                                            onChanged: (val) {
+                                              setState(() {
+                                                if (val == true) {
+                                                  selectedIds.add(doc.id);
+                                                } else {
+                                                  selectedIds.remove(doc.id);
+                                                }
+                                                if (selectedIds.isEmpty) {
+                                                  isSelecting = false;
+                                                }
+                                              });
+                                            },
+                                          ),
                                         Container(
                                           width: 48,
                                           height: 48,
@@ -394,7 +630,7 @@ class _HomePageState extends State<HomePage> {
                                               ),
                                               const SizedBox(height: 4),
                                               Text(
-                                                data['category'] ?? '',
+                                                '${data['category'] ?? ''} • $dateText',
                                                 style: TextStyle(
                                                   color: secondaryTextColor,
                                                   fontSize: 14,
@@ -433,33 +669,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildAmountText(String label, double amount, Color textColor) {
-    return Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: TextStyle(
-              color: textColor.withOpacity(0.9),
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            "Rp${amount.toStringAsFixed(0)}",
-            style: TextStyle(
-              color: textColor,
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildSummaryCard(
     double value,
     String label,
@@ -467,14 +676,9 @@ class _HomePageState extends State<HomePage> {
     IconData icon,
   ) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-
     return Container(
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [color, color.withOpacity(0.8)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        gradient: LinearGradient(colors: [color, color.withOpacity(0.8)]),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -488,24 +692,43 @@ class _HomePageState extends State<HomePage> {
         padding: const EdgeInsets.all(16),
         child: Row(
           children: [
-            _buildIconBox(color, icon),
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(icon, color: color, size: 20),
+            ),
             const SizedBox(width: 12),
-            _buildAmountText(label, value, appWhite),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    "Rp${value.toStringAsFixed(0)}",
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildIconBox(Color borderColor, IconData icon) {
-    return Container(
-      width: 36,
-      height: 36,
-      decoration: BoxDecoration(
-        color: appWhite,
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Icon(icon, color: borderColor, size: 20),
     );
   }
 
@@ -526,11 +749,7 @@ class _HomePageState extends State<HomePage> {
             : null,
       ),
       child: TextButton(
-        onPressed: () {
-          setState(() {
-            selectedIndex = index;
-          });
-        },
+        onPressed: () => setState(() => selectedIndex = index),
         style: TextButton.styleFrom(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           minimumSize: const Size(70, 36),
@@ -540,7 +759,7 @@ class _HomePageState extends State<HomePage> {
           style: TextStyle(
             fontSize: 14,
             color: isSelected
-                ? appWhite
+                ? Colors.white
                 : (isDark ? secondaryTextColor : appBlackSoft),
             fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
           ),

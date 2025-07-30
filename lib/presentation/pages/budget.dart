@@ -136,18 +136,12 @@ class _BudgetingPageState extends State<BudgetingPage> {
                             onSelected: (value) {
                               if (value == 'edit') {
                                 _showEditBudgetDialog(context, doc);
-                              } else if (value == 'delete') {
-                                doc.reference.delete();
                               }
                             },
                             itemBuilder: (context) => [
                               const PopupMenuItem(
                                 value: 'edit',
                                 child: Text('Edit'),
-                              ),
-                              const PopupMenuItem(
-                                value: 'delete',
-                                child: Text('Hapus'),
                               ),
                             ],
                           ),
