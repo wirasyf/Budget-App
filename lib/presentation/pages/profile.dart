@@ -183,15 +183,6 @@ class _SettingsState extends State<Settings> {
               child: Column(
                 children: [
                   _buildSettingItem(
-                    icon: Icons.color_lens,
-                    label: "Theme",
-                    color: isDark ? appYellow : Colors.blue,
-                    onTap: () {
-                      // toggleTheme logic
-                    },
-                  ),
-                  const SizedBox(height: 30),
-                  _buildSettingItem(
                     icon: Icons.info,
                     label: "Info Aplikasi",
                     color: isDark ? appYellow : Colors.blue,
