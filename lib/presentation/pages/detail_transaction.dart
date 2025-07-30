@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:budget_app/presentation/theme/color.dart';
+import 'package:intl/intl.dart'; // UBAH: Import package intl
 
 class DetailTransaction extends StatefulWidget {
   const DetailTransaction({super.key});
@@ -16,6 +17,7 @@ class _DetailTransactionState extends State<DetailTransaction> {
   String selectedType = 'All';
   String selectedDateMode = 'Monthly';
 
+  // UBAH: Melengkapi daftar kategori agar semua data bisa difilter
   final List<String> categories = [
     'All',
     'Food',
@@ -23,21 +25,30 @@ class _DetailTransactionState extends State<DetailTransaction> {
     'Shopping',
     'Entertainment',
     'Bills',
+    'Salary',
+    'Gift',
+    'Investment',
+    'Health',
     'Other',
   ];
 
+  // UBAH: Melengkapi ikon untuk kategori baru
   final Map<String, IconData> categoryIcons = {
     'Food': Icons.fastfood,
     'Transportation': Icons.directions_car,
     'Shopping': Icons.shopping_bag,
     'Entertainment': Icons.movie,
     'Bills': Icons.receipt_long,
+    'Salary': Icons.attach_money,
+    'Gift': Icons.card_giftcard,
+    'Investment': Icons.trending_up,
+    'Health': Icons.health_and_safety,
     'Other': Icons.category,
   };
 
   final List<String> types = ['All', 'Expense', 'Income'];
 
-  // THEME COLORS
+  // THEME COLORS (tidak ada perubahan di sini)
   Color get backgroundColor {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return isDark ? const Color(0xFF0D1117) : appPrimary;
@@ -70,80 +81,80 @@ class _DetailTransactionState extends State<DetailTransaction> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) {
-        String tempType = selectedType;
-        String tempCategory = selectedCategory;
-        String tempDateMode = selectedDateMode;
-
-        return Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Filter Transaksi',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: primaryTextColor,
-                ),
+        // UBAH: Bungkus dengan StatefulBuilder agar UI di dalam dialog bisa di-update
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setModalState) {
+            return Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Filter Transaksi',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: primaryTextColor,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  DropdownButtonFormField<String>(
+                    value: selectedDateMode,
+                    items: ['Daily', 'Monthly', 'Yearly'].map((mode) {
+                      return DropdownMenuItem(value: mode, child: Text(mode));
+                    }).toList(),
+                    onChanged: (val) => setModalState(() => selectedDateMode = val!),
+                    decoration: const InputDecoration(labelText: 'Mode Tanggal'),
+                  ),
+                  const SizedBox(height: 10),
+                  DropdownButtonFormField<String>(
+                    value: selectedType,
+                    items: types.map((type) {
+                      return DropdownMenuItem(value: type, child: Text(type));
+                    }).toList(),
+                    onChanged: (val) => setModalState(() => selectedType = val!),
+                    decoration: const InputDecoration(labelText: 'Tipe Transaksi'),
+                  ),
+                  const SizedBox(height: 10),
+                  DropdownButtonFormField<String>(
+                    value: selectedCategory,
+                    items: categories.map((cat) {
+                      return DropdownMenuItem(value: cat, child: Text(cat));
+                    }).toList(),
+                    onChanged: (val) => setModalState(() => selectedCategory = val!),
+                    decoration: const InputDecoration(labelText: 'Kategori'),
+                  ),
+                  const SizedBox(height: 10),
+                  ElevatedButton(
+                    onPressed: () {
+                      // Cukup panggil setState() sekali di sini
+                      setState(() {});
+                      Navigator.pop(context);
+                    },
+                    child: const Text('Terapkan Filter'),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      setState(() {
+                        selectedType = 'All';
+                        selectedCategory = 'All';
+                        selectedDate = DateTime.now();
+                        selectedDateMode = 'Monthly';
+                      });
+                      Navigator.pop(context);
+                    },
+                    child: const Text('Reset Filter'),
+                  ),
+                ],
               ),
-              const SizedBox(height: 10),
-              DropdownButtonFormField<String>(
-                value: tempDateMode,
-                items: ['Daily', 'Monthly', 'Yearly'].map((mode) {
-                  return DropdownMenuItem(value: mode, child: Text(mode));
-                }).toList(),
-                onChanged: (val) => tempDateMode = val!,
-                decoration: const InputDecoration(labelText: 'Mode Tanggal'),
-              ),
-              const SizedBox(height: 10),
-              DropdownButtonFormField<String>(
-                value: tempType,
-                items: types.map((type) {
-                  return DropdownMenuItem(value: type, child: Text(type));
-                }).toList(),
-                onChanged: (val) => tempType = val!,
-                decoration: const InputDecoration(labelText: 'Tipe Transaksi'),
-              ),
-              const SizedBox(height: 10),
-              DropdownButtonFormField<String>(
-                value: tempCategory,
-                items: categories.map((cat) {
-                  return DropdownMenuItem(value: cat, child: Text(cat));
-                }).toList(),
-                onChanged: (val) => tempCategory = val!,
-                decoration: const InputDecoration(labelText: 'Kategori'),
-              ),
-              const SizedBox(height: 10),
-              ElevatedButton(
-                onPressed: () {
-                  setState(() {
-                    selectedType = tempType;
-                    selectedCategory = tempCategory;
-                    selectedDateMode = tempDateMode;
-                  });
-                  Navigator.pop(context);
-                },
-                child: const Text('Terapkan Filter'),
-              ),
-              TextButton(
-                onPressed: () {
-                  setState(() {
-                    selectedType = 'All';
-                    selectedCategory = 'All';
-                    selectedDate = DateTime.now();
-                    selectedDateMode = 'Monthly';
-                  });
-                  Navigator.pop(context);
-                },
-                child: const Text('Reset Filter'),
-              ),
-            ],
-          ),
+            );
+          },
         );
       },
     );
   }
+
+  // Tidak ada perubahan pada _pickDate, _pickMonth, _pickYear, _showEditTransactionDialog
 
   Future<void> _pickDate(BuildContext context) async {
     if (selectedDateMode == 'Daily') {
@@ -172,55 +183,57 @@ class _DetailTransactionState extends State<DetailTransaction> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) {
-        return SizedBox(
-          height: 250,
-          child: Column(
-            children: [
-              const SizedBox(height: 10),
-              const Text(
-                'Pilih Bulan & Tahun',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-              const Divider(),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  DropdownButton<int>(
-                    value: pickedMonth,
-                    items: List.generate(12, (index) {
-                      return DropdownMenuItem(
-                        value: index + 1,
-                        child: Text('${index + 1}'.padLeft(2, '0')),
-                      );
-                    }),
-                    onChanged: (val) => pickedMonth = val!,
-                  ),
-                  DropdownButton<int>(
-                    value: pickedYear,
-                    items: List.generate(now.year - 2019, (index) {
-                      return DropdownMenuItem(
-                        value: 2020 + index,
-                        child: Text('${2020 + index}'),
-                      );
-                    }),
-                    onChanged: (val) => pickedYear = val!,
-                  ),
-                ],
-              ),
-              const Spacer(),
-              ElevatedButton(
-                onPressed: () {
-                  setState(
-                    () => selectedDate = DateTime(pickedYear, pickedMonth),
-                  );
-                  Navigator.pop(context);
-                },
-                child: const Text('Pilih'),
-              ),
-              const SizedBox(height: 10),
-            ],
-          ),
-        );
+        return StatefulBuilder(builder: (context, setModalState) {
+          return SizedBox(
+            height: 250,
+            child: Column(
+              children: [
+                const SizedBox(height: 10),
+                const Text(
+                  'Pilih Bulan & Tahun',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+                const Divider(),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    DropdownButton<int>(
+                      value: pickedMonth,
+                      items: List.generate(12, (index) {
+                        return DropdownMenuItem(
+                          value: index + 1,
+                          child: Text(DateFormat('MMMM').format(DateTime(0, index + 1))),
+                        );
+                      }),
+                      onChanged: (val) => setModalState(() => pickedMonth = val!),
+                    ),
+                    DropdownButton<int>(
+                      value: pickedYear,
+                      items: List.generate(now.year - 2019, (index) {
+                        return DropdownMenuItem(
+                          value: 2020 + index,
+                          child: Text('${2020 + index}'),
+                        );
+                      }),
+                      onChanged: (val) => setModalState(() => pickedYear = val!),
+                    ),
+                  ],
+                ),
+                const Spacer(),
+                ElevatedButton(
+                  onPressed: () {
+                    setState(
+                      () => selectedDate = DateTime(pickedYear, pickedMonth),
+                    );
+                    Navigator.pop(context);
+                  },
+                  child: const Text('Pilih'),
+                ),
+                const SizedBox(height: 10),
+              ],
+            ),
+          );
+        });
       },
     );
   }
@@ -228,45 +241,46 @@ class _DetailTransactionState extends State<DetailTransaction> {
   Future<void> _pickYear(BuildContext context) async {
     final now = DateTime.now();
     int pickedYear = selectedDate.year;
-
     await showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) {
-        return SizedBox(
-          height: 250,
-          child: Column(
-            children: [
-              const SizedBox(height: 10),
-              const Text(
-                'Pilih Tahun',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-              const Divider(),
-              DropdownButton<int>(
-                value: pickedYear,
-                items: List.generate(now.year - 2019, (index) {
-                  return DropdownMenuItem(
-                    value: 2020 + index,
-                    child: Text('${2020 + index}'),
-                  );
-                }),
-                onChanged: (val) => pickedYear = val!,
-              ),
-              const Spacer(),
-              ElevatedButton(
-                onPressed: () {
-                  setState(() => selectedDate = DateTime(pickedYear));
-                  Navigator.pop(context);
-                },
-                child: const Text('Pilih'),
-              ),
-              const SizedBox(height: 10),
-            ],
-          ),
-        );
+        return StatefulBuilder(builder: (context, setModalState) {
+          return SizedBox(
+            height: 250,
+            child: Column(
+              children: [
+                const SizedBox(height: 10),
+                const Text(
+                  'Pilih Tahun',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+                const Divider(),
+                DropdownButton<int>(
+                  value: pickedYear,
+                  items: List.generate(now.year - 2019, (index) {
+                    return DropdownMenuItem(
+                      value: 2020 + index,
+                      child: Text('${2020 + index}'),
+                    );
+                  }),
+                  onChanged: (val) => setModalState(() => pickedYear = val!),
+                ),
+                const Spacer(),
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() => selectedDate = DateTime(pickedYear));
+                    Navigator.pop(context);
+                  },
+                  child: const Text('Pilih'),
+                ),
+                const SizedBox(height: 10),
+              ],
+            ),
+          );
+        });
       },
     );
   }
@@ -292,105 +306,100 @@ class _DetailTransactionState extends State<DetailTransaction> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) {
-        return Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-            left: 16,
-            right: 16,
-            top: 20,
-          ),
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'Edit Transaksi',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: primaryTextColor,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                TextField(
-                  controller: titleController,
-                  decoration: const InputDecoration(labelText: 'Judul'),
-                ),
-                const SizedBox(height: 10),
-                TextField(
-                  controller: amountController,
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(labelText: 'Nominal'),
-                ),
-                const SizedBox(height: 10),
-                DropdownButtonFormField<String>(
-                  value: selectedEditType,
-                  items: types.where((e) => e != 'All').map((type) {
-                    return DropdownMenuItem(value: type, child: Text(type));
-                  }).toList(),
-                  onChanged: (val) => selectedEditType = val!,
-                  decoration: const InputDecoration(labelText: 'Tipe'),
-                ),
-                const SizedBox(height: 10),
-                DropdownButtonFormField<String>(
-                  value: selectedEditCategory,
-                  items: categories.where((e) => e != 'All').map((cat) {
-                    return DropdownMenuItem(value: cat, child: Text(cat));
-                  }).toList(),
-                  onChanged: (val) => selectedEditCategory = val!,
-                  decoration: const InputDecoration(labelText: 'Kategori'),
-                ),
-                const SizedBox(height: 20),
-                Row(
-                  children: [
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: appRed,
-                        ),
-                        onPressed: () async {
-                          await FirebaseFirestore.instance
-                              .collection('transactions')
-                              .doc(id)
-                              .delete();
-                          // ignore: use_build_context_synchronously
-                          Navigator.pop(context);
-                        },
-                        icon: Icon(Icons.delete, color: appWhite),
-                        label: const Text('Hapus'),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: appGreen,
-                        ),
-                        onPressed: () async {
-                          await FirebaseFirestore.instance
-                              .collection('transactions')
-                              .doc(id)
-                              .update({
-                                'title': titleController.text,
-                                'amount':
-                                    int.tryParse(amountController.text) ?? 0,
-                                'type': selectedEditType,
-                                'category': selectedEditCategory,
-                              });
-                          // ignore: use_build_context_synchronously
-                          Navigator.pop(context);
-                        },
-                        icon: Icon(Icons.save, color: appWhite),
-                        label: const Text('Simpan'),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-              ],
+        return StatefulBuilder(builder: (context, setModalState) {
+          return Padding(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom,
+              left: 16,
+              right: 16,
+              top: 20,
             ),
-          ),
-        );
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Edit Transaksi',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: primaryTextColor,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  TextField(
+                    controller: titleController,
+                    decoration: const InputDecoration(labelText: 'Judul'),
+                  ),
+                  const SizedBox(height: 10),
+                  TextField(
+                    controller: amountController,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(labelText: 'Nominal'),
+                  ),
+                  const SizedBox(height: 10),
+                  DropdownButtonFormField<String>(
+                    value: selectedEditType,
+                    items: types.where((e) => e != 'All').map((type) {
+                      return DropdownMenuItem(value: type, child: Text(type));
+                    }).toList(),
+                    onChanged: (val) => setModalState(() => selectedEditType = val!),
+                    decoration: const InputDecoration(labelText: 'Tipe'),
+                  ),
+                  const SizedBox(height: 10),
+                  DropdownButtonFormField<String>(
+                    value: selectedEditCategory,
+                    items: categories.where((e) => e != 'All').map((cat) {
+                      return DropdownMenuItem(value: cat, child: Text(cat));
+                    }).toList(),
+                    onChanged: (val) => setModalState(() => selectedEditCategory = val!),
+                    decoration: const InputDecoration(labelText: 'Kategori'),
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: appRed,
+                          ),
+                          onPressed: () async {
+                            await FirebaseFirestore.instance.collection('transactions').doc(id).delete();
+                            // ignore: use_build_context_synchronously
+                            Navigator.pop(context);
+                          },
+                          icon: Icon(Icons.delete, color: appWhite),
+                          label: const Text('Hapus'),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: appGreen,
+                          ),
+                          onPressed: () async {
+                            await FirebaseFirestore.instance.collection('transactions').doc(id).update({
+                              'title': titleController.text,
+                              'amount': int.tryParse(amountController.text) ?? 0,
+                              'type': selectedEditType,
+                              'category': selectedEditCategory,
+                            });
+                            // ignore: use_build_context_synchronously
+                            Navigator.pop(context);
+                          },
+                          icon: Icon(Icons.save, color: appWhite),
+                          label: const Text('Simpan'),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                ],
+              ),
+            ),
+          );
+        });
       },
     );
   }
@@ -447,10 +456,10 @@ class _DetailTransactionState extends State<DetailTransaction> {
                       icon: Icon(Icons.calendar_today, color: primaryTextColor),
                       label: Text(
                         selectedDateMode == 'Daily'
-                            ? "${selectedDate.day.toString().padLeft(2, '0')}/${selectedDate.month.toString().padLeft(2, '0')}/${selectedDate.year}"
+                            ? DateFormat('d MMM yyyy').format(selectedDate)
                             : selectedDateMode == 'Monthly'
-                            ? "${selectedDate.month.toString().padLeft(2, '0')}/${selectedDate.year}"
-                            : "${selectedDate.year}",
+                                ? DateFormat('MMMM yyyy').format(selectedDate)
+                                : DateFormat('yyyy').format(selectedDate),
                         style: TextStyle(
                           fontSize: 16,
                           color: primaryTextColor,
@@ -506,6 +515,13 @@ class _DetailTransactionState extends State<DetailTransaction> {
                       final type = data['type'] ?? 'Expense';
                       final isExpense = type == 'Expense';
 
+                      // TAMBAHKAN: Mengambil dan memformat tanggal
+                      final timestamp = data['date'] as Timestamp?;
+                      String formattedDate = '';
+                      if (timestamp != null) {
+                        formattedDate = DateFormat('d MMM yy').format(timestamp.toDate());
+                      }
+
                       return Padding(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 16,
@@ -516,8 +532,7 @@ class _DetailTransactionState extends State<DetailTransaction> {
                           borderRadius: BorderRadius.circular(18),
                           child: InkWell(
                             borderRadius: BorderRadius.circular(18),
-                            onTap: () =>
-                                _showEditTransactionDialog(docs[index]),
+                            onTap: () => _showEditTransactionDialog(docs[index]),
                             child: Padding(
                               padding: const EdgeInsets.all(10),
                               child: ListTile(
@@ -527,14 +542,12 @@ class _DetailTransactionState extends State<DetailTransaction> {
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(14),
                                     color: isExpense
-                                        ? (Theme.of(context).brightness ==
-                                                  Brightness.dark
-                                              ? appRed.withOpacity(0.2)
-                                              : appRedSoft)
-                                        : (Theme.of(context).brightness ==
-                                                  Brightness.dark
-                                              ? appGreen.withOpacity(0.2)
-                                              : appGreenSoft),
+                                        ? (Theme.of(context).brightness == Brightness.dark
+                                            ? appRed.withOpacity(0.2)
+                                            : appRedSoft)
+                                        : (Theme.of(context).brightness == Brightness.dark
+                                            ? appGreen.withOpacity(0.2)
+                                            : appGreenSoft),
                                   ),
                                   child: Icon(
                                     categoryIcons[category] ?? Icons.category,
@@ -548,8 +561,9 @@ class _DetailTransactionState extends State<DetailTransaction> {
                                     color: primaryTextColor,
                                   ),
                                 ),
+                                // UBAH: Menampilkan kategori dan tanggal
                                 subtitle: Text(
-                                  category,
+                                  '$category • $formattedDate',
                                   style: TextStyle(
                                     color: secondaryTextColor,
                                     fontSize: 13,
