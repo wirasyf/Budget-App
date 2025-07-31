@@ -414,7 +414,9 @@ class _DetailTransactionState extends State<DetailTransaction> {
                               Navigator.pop(context);
                             },
                             icon: Icon(Icons.save, color: appWhite),
-                            label: const Text('Simpan'),
+                            label: Text('Simpan',
+                              style: TextStyle(color: appWhite),
+                            ),
                           ),
                         ),
                       ],

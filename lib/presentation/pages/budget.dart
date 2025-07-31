@@ -319,7 +319,7 @@ class _BudgetingPageState extends State<BudgetingPage> {
                 Navigator.pop(context);
               },
               style: ElevatedButton.styleFrom(backgroundColor: appPrimary),
-              child: const Text('Simpan'),
+              child: Text('Simpan', style: TextStyle(color : appBlack),),
             ),
           ],
         );
