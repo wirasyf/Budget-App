@@ -49,14 +49,22 @@ class _DetailTransactionState extends State<DetailTransaction> {
 
   final List<String> types = ['All', 'Expense', 'Income'];
 
+  String _formatCurrency(num value) {
+    return NumberFormat.currency(
+      locale: 'id_ID',
+      symbol: 'Rp',
+      decimalDigits: 0,
+    ).format(value);
+  }
+
   Color get backgroundColor {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    return isDark ? const Color(0xFF0D1117) : appPrimary;
+    return isDark ? const Color(0xFF0D1117) : appPrimaryDark;
   }
 
   Color get cardBackgroundColor {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    return isDark ? const Color(0xFF161B22) : appPrimaryDark;
+    return isDark ? const Color(0xFF161B22) : appPrimary;
   }
 
   Color get primaryTextColor {
@@ -574,7 +582,10 @@ class _DetailTransactionState extends State<DetailTransaction> {
                       final id = docs[index].id;
                       final title = data['title'] ?? '-';
                       final category = data['category'] ?? '-';
-                      final amount = data['amount']?.toString() ?? '0';
+                      final amountRaw = data['amount'] ?? 0;
+                      final amount = amountRaw is int
+                          ? amountRaw.toDouble()
+                          : amountRaw as double;
                       final type = data['type'] ?? 'Expense';
                       final isExpense = type == 'Expense';
 
@@ -679,8 +690,8 @@ class _DetailTransactionState extends State<DetailTransaction> {
                                       ),
                                       trailing: Text(
                                         isExpense
-                                            ? "- Rp $amount"
-                                            : "+ Rp $amount",
+                                            ? "- ${_formatCurrency(amount)}"
+                                            : "+ ${_formatCurrency(amount)}",
                                         style: TextStyle(
                                           color: isExpense ? appRed : appGreen,
                                           fontWeight: FontWeight.bold,

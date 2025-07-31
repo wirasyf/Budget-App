@@ -25,6 +25,14 @@ class _HomePageState extends State<HomePage> {
     transactionSummaryStream = getTransactionSummary();
   }
 
+  String _formatCurrency(num value) {
+    return NumberFormat.currency(
+      locale: 'id_ID',
+      symbol: 'Rp',
+      decimalDigits: 0,
+    ).format(value);
+  }
+
   DateTime getStartDateByFilter() {
     final now = DateTime.now();
     switch (selectedIndex) {
@@ -216,7 +224,7 @@ class _HomePageState extends State<HomePage> {
                               // ignore: use_build_context_synchronously
                               Navigator.pop(context);
                             },
-                            icon: Icon(Icons.delete, color: Colors.white),
+                            icon: const Icon(Icons.delete, color: Colors.white),
                             label: const Text('Hapus'),
                           ),
                         ),
@@ -241,7 +249,7 @@ class _HomePageState extends State<HomePage> {
                               // ignore: use_build_context_synchronously
                               Navigator.pop(context);
                             },
-                            icon: Icon(Icons.save, color: Colors.white),
+                            icon: const Icon(Icons.save, color: Colors.white),
                             label: const Text('Simpan'),
                           ),
                         ),
@@ -297,7 +305,7 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: appBarBackgroundColor,
         elevation: 0,
         title: Text(
-          "Homepage",
+          "Beranda",
           style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 20,
@@ -412,7 +420,7 @@ class _HomePageState extends State<HomePage> {
                             transitionBuilder: (child, animation) =>
                                 ScaleTransition(scale: animation, child: child),
                             child: Text(
-                              "Rp${balance.toStringAsFixed(0)}",
+                              _formatCurrency(balance),
                               key: ValueKey(balance),
                               style: TextStyle(
                                 fontSize: 32,
@@ -454,10 +462,10 @@ class _HomePageState extends State<HomePage> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      _buildFilterButton("Today", 0),
-                      _buildFilterButton("Week", 1),
-                      _buildFilterButton("Month", 2),
-                      _buildFilterButton("Year", 3),
+                      _buildFilterButton("Hari Ini", 0),
+                      _buildFilterButton("Minggu", 1),
+                      _buildFilterButton("Bulan", 2),
+                      _buildFilterButton("Tahun", 3),
                     ],
                   ),
                 ),
@@ -506,7 +514,7 @@ class _HomePageState extends State<HomePage> {
                               ),
                               const SizedBox(height: 16),
                               Text(
-                                "No transactions yet",
+                                "Tidak ada transaksi.",
                                 style: TextStyle(
                                   color: secondaryTextColor,
                                   fontSize: 16,
@@ -640,7 +648,7 @@ class _HomePageState extends State<HomePage> {
                                           ),
                                         ),
                                         Text(
-                                          "${isExpense ? '-' : '+'}Rp${data['amount']}",
+                                          "${isExpense ? '-' : '+'}${_formatCurrency(data['amount'])}",
                                           style: TextStyle(
                                             color: isExpense
                                                 ? appRed
@@ -708,7 +716,7 @@ class _HomePageState extends State<HomePage> {
                 children: [
                   Text(
                     label,
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
@@ -716,7 +724,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    "Rp${value.toStringAsFixed(0)}",
+                    _formatCurrency(value),
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 16,

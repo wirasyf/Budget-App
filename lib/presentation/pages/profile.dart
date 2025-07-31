@@ -156,7 +156,7 @@ class _SettingsState extends State<Settings> {
                           actions: [
                             TextButton(
                               onPressed: () => Navigator.pop(context),
-                              child: const Text("Cancel"),
+                              child: const Text("Batal"),
                             ),
                             TextButton(
                               onPressed: () async {
@@ -164,7 +164,7 @@ class _SettingsState extends State<Settings> {
                                 // ignore: use_build_context_synchronously
                                 Navigator.pop(context);
                               },
-                              child: const Text("Save"),
+                              child: const Text("Simpan"),
                             ),
                           ],
                         ),
@@ -193,9 +193,9 @@ class _SettingsState extends State<Settings> {
                       showAboutDialog(
                         context: context,
                         applicationName: 'Budget App',
-                        applicationVersion: '1.0.0',
+                        applicationVersion: 'v1.0',
                         applicationLegalese:
-                            '© 2025 Budget App by Your Company',
+                            '©2025 Budget App by Wirawrr',
                       );
                     },
                   ),

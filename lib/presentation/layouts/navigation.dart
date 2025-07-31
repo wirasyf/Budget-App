@@ -39,11 +39,11 @@ class _MainNavigationState extends State<MainNavigation> {
         color: isDark ? Colors.grey[400]! : appGrey,
         activeColor: isDark ? appYellow : Colors.blue,
         items: const [
-          TabItem(icon: Icons.home_rounded, title: 'Home'),
-          TabItem(icon: Icons.compare_arrows_rounded, title: 'Details'),
-          TabItem(icon: Icons.add_rounded, title: 'Add'),
+          TabItem(icon: Icons.home_rounded, title: 'Beranda'),
+          TabItem(icon: Icons.compare_arrows_rounded, title: 'Detail'),
+          TabItem(icon: Icons.add_rounded, title: 'Tambah'),
           TabItem(icon: Icons.pie_chart, title: 'Budget'),
-          TabItem(icon: Icons.person_rounded, title: 'Profile'),
+          TabItem(icon: Icons.person_rounded, title: 'Profil'),
         ],
         initialActiveIndex: _selectedIndex,
         onTap: (int index) {

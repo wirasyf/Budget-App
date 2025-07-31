@@ -1,7 +1,7 @@
+import 'package:budget_app/presentation/auth/auth_gate.dart';
 import 'package:budget_app/presentation/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:budget_app/presentation/auth/login.dart';
 import 'package:budget_app/firebase_options.dart';
 
 final themeNotifier = ThemeNotifier(); 
@@ -42,7 +42,7 @@ class MyApp extends StatelessWidget {
             ),
           ),
           themeMode: mode,
-          home: const LoginPage(),
+          home: const AuthGate(),
         );
       },
     );

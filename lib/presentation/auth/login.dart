@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:budget_app/presentation/auth/register.dart';
 import 'package:budget_app/presentation/layouts/navigation.dart';
 
@@ -17,22 +18,58 @@ class _LoginPageState extends State<LoginPage> {
   bool _rememberMe = false;
   bool _isLoading = false;
 
-  void _login() async {
+  @override
+  void initState() {
+    super.initState();
+    _loadSavedCredentials();
+  }
+
+  Future<void> _loadSavedCredentials() async {
+    final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _isLoading = true;
+      _emailController.text = prefs.getString('saved_email') ?? '';
+      _passwordController.text = prefs.getString('saved_password') ?? '';
+      _rememberMe = _emailController.text.isNotEmpty;
     });
+  }
+
+  void _login() async {
+    setState(() => _isLoading = true);
+
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Email dan password wajib diisi'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      setState(() => _isLoading = false);
+      return;
+    }
 
     try {
       await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: _emailController.text.trim(),
-        password: _passwordController.text.trim(),
+        email: email,
+        password: password,
       );
 
-      // Navigasi ke Homepage
+      // Simpan jika Remember Me aktif
+      final prefs = await SharedPreferences.getInstance();
+      if (_rememberMe) {
+        await prefs.setString('saved_email', email);
+        await prefs.setString('saved_password', password);
+      } else {
+        await prefs.remove('saved_email');
+        await prefs.remove('saved_password');
+      }
+
       if (!mounted) return;
-      Navigator.pushReplacement(
-        context,
+      Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (context) => const MainNavigation()),
+        (route) => false,
       );
     } on FirebaseAuthException catch (e) {
       String message = "Login gagal";
@@ -43,15 +80,42 @@ class _LoginPageState extends State<LoginPage> {
       } else {
         message = e.message ?? 'Terjadi kesalahan';
       }
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(message), backgroundColor: Colors.red),
         );
       }
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      setState(() => _isLoading = false);
+    }
+  }
+
+  void _resetPassword() async {
+    final email = _emailController.text.trim();
+    if (email.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Masukkan email terlebih dahulu'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    try {
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Link reset password telah dikirim'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Gagal mengirim email: $e')));
     }
   }
 
@@ -66,7 +130,6 @@ class _LoginPageState extends State<LoginPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Icon
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
@@ -90,7 +153,6 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 const SizedBox(height: 35),
 
-                // Email
                 TextField(
                   controller: _emailController,
                   style: const TextStyle(color: Colors.white),
@@ -110,7 +172,6 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 const SizedBox(height: 20),
 
-                // Password
                 TextField(
                   controller: _passwordController,
                   obscureText: _obscurePassword,
@@ -143,7 +204,6 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 const SizedBox(height: 20),
 
-                // Remember Me & Forgot
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -167,7 +227,7 @@ class _LoginPageState extends State<LoginPage> {
                       ],
                     ),
                     TextButton(
-                      onPressed: () {},
+                      onPressed: _resetPassword,
                       child: const Text(
                         "Forgot Password?",
                         style: TextStyle(color: Colors.white),
@@ -177,7 +237,6 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 const SizedBox(height: 30),
 
-                // Login Button
                 _isLoading
                     ? const CircularProgressIndicator(color: Colors.white)
                     : ElevatedButton(
@@ -202,7 +261,6 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                 const SizedBox(height: 20),
 
-                // Sign Up
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -211,7 +269,6 @@ class _LoginPageState extends State<LoginPage> {
                       style: TextStyle(color: Colors.white),
                     ),
                     TextButton(
-                      // Navigasi tanpa animasi
                       onPressed: () {
                         Navigator.of(context).push(
                           PageRouteBuilder(

@@ -21,26 +21,39 @@ class _BudgetingPageState extends State<BudgetingPage> {
     decimalDigits: 0,
   );
 
+  bool get isDark => Theme.of(context).brightness == Brightness.dark;
+
+  Color get backgroundColor => isDark ? const Color(0xFF0D1117) : Colors.white;
+
+  Color get cardColor => isDark ? const Color(0xFF161B22) : Colors.white;
+
+  Color get primaryTextColor => isDark ? const Color(0xFFE6EDF3) : appBlack;
+
+  Color get secondaryTextColor =>
+      isDark ? const Color(0xFF8B949E) : appBlackSoft;
+
+  Color get borderColor =>
+      isDark ? const Color(0xFF30363D) : Colors.grey.shade300;
+
+  Color get iconColor => isDark ? const Color(0xFF58A6FF) : appPrimary;
+
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final currentMonth = DateFormat('yyyy-MM').format(selectedMonth);
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
 
     return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
+      backgroundColor: backgroundColor,
       appBar: AppBar(
         title: const Text(
           'Budgeting',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        backgroundColor: theme.appBarTheme.backgroundColor,
-        foregroundColor: theme.appBarTheme.foregroundColor,
+        backgroundColor: backgroundColor,
+        foregroundColor: primaryTextColor,
         elevation: 1,
         actions: [
           IconButton(
-            icon: const Icon(Icons.date_range),
+            icon: Icon(Icons.date_range, color: iconColor),
             onPressed: () => _selectMonth(context),
           ),
         ],
@@ -57,18 +70,24 @@ class _BudgetingPageState extends State<BudgetingPage> {
             .where('month', isEqualTo: currentMonth)
             .snapshots(),
         builder: (context, snapshot) {
-          if (snapshot.hasError) return Text('Error: ${snapshot.error}');
+          if (snapshot.hasError) {
+            return Center(
+              child: Text(
+                'Error: ${snapshot.error}',
+                style: TextStyle(color: primaryTextColor),
+              ),
+            );
+          }
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
 
           final budgets = snapshot.data!.docs;
-
           if (budgets.isEmpty) {
             return Center(
               child: Text(
                 'Belum ada anggaran bulan ini.',
-                style: TextStyle(color: colorScheme.onBackground),
+                style: TextStyle(color: secondaryTextColor),
               ),
             );
           }
@@ -87,15 +106,9 @@ class _BudgetingPageState extends State<BudgetingPage> {
               return Container(
                 margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
-                  color: colorScheme.surface,
+                  color: cardColor,
                   borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: isDark ? Colors.black26 : Colors.grey.shade300,
-                      blurRadius: 5,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
+                  border: Border.all(color: borderColor, width: 1),
                 ),
                 child: Padding(
                   padding: const EdgeInsets.all(16),
@@ -115,7 +128,7 @@ class _BudgetingPageState extends State<BudgetingPage> {
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
-                                    color: colorScheme.onSurface,
+                                    color: primaryTextColor,
                                   ),
                                 ),
                                 const SizedBox(height: 4),
@@ -123,16 +136,14 @@ class _BudgetingPageState extends State<BudgetingPage> {
                                   'Anggaran: ${formatRupiah.format(budgetAmount)}',
                                   style: TextStyle(
                                     fontSize: 13,
-                                    color: isDark
-                                        ? Colors.grey[300]
-                                        : Colors.grey[600],
+                                    color: secondaryTextColor,
                                   ),
                                 ),
                               ],
                             ),
                           ),
                           PopupMenuButton<String>(
-                            color: colorScheme.surface,
+                            color: cardColor,
                             onSelected: (value) {
                               if (value == 'edit') {
                                 _showEditBudgetDialog(context, doc);
@@ -150,7 +161,9 @@ class _BudgetingPageState extends State<BudgetingPage> {
                       const SizedBox(height: 16),
                       LinearProgressIndicator(
                         value: percent,
-                        backgroundColor: Colors.grey[300],
+                        backgroundColor: isDark
+                            ? const Color(0xFF21262D)
+                            : Colors.grey.shade300,
                         color: percent > 0.9
                             ? appRed
                             : (percent > 0.6 ? appYellow : appGreen),
@@ -164,7 +177,7 @@ class _BudgetingPageState extends State<BudgetingPage> {
                             'Dipakai: ${formatRupiah.format(usedAmount)}',
                             style: TextStyle(
                               fontSize: 14,
-                              color: isDark ? Colors.grey[300] : Colors.black87,
+                              color: secondaryTextColor,
                             ),
                           ),
                           Text(
@@ -172,9 +185,7 @@ class _BudgetingPageState extends State<BudgetingPage> {
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
-                              color: remaining < 0
-                                  ? appRed
-                                  : colorScheme.onSurface,
+                              color: remaining < 0 ? appRed : primaryTextColor,
                             ),
                           ),
                         ],
@@ -210,8 +221,9 @@ class _BudgetingPageState extends State<BudgetingPage> {
     await showDialog(
       context: context,
       builder: (_) {
+        final isDark = Theme.of(context).brightness == Brightness.dark;
         return AlertDialog(
-          backgroundColor: Theme.of(context).colorScheme.surface,
+          backgroundColor: isDark ? const Color(0xFF161B22) : Colors.white,
           title: const Text(
             'Tambah Budget',
             style: TextStyle(fontWeight: FontWeight.bold),
@@ -222,7 +234,7 @@ class _BudgetingPageState extends State<BudgetingPage> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Batal'),
+              child: Text('Batal', style: TextStyle(color: primaryTextColor)),
             ),
             ElevatedButton(
               onPressed: () async {
@@ -260,7 +272,7 @@ class _BudgetingPageState extends State<BudgetingPage> {
                 Navigator.pop(context);
               },
               style: ElevatedButton.styleFrom(backgroundColor: appPrimary),
-              child: const Text('Simpan'),
+              child: Text('Simpan', style: TextStyle (color: appBlack)),
             ),
           ],
         );
@@ -281,8 +293,9 @@ class _BudgetingPageState extends State<BudgetingPage> {
     await showDialog(
       context: context,
       builder: (_) {
+        final isDark = Theme.of(context).brightness == Brightness.dark;
         return AlertDialog(
-          backgroundColor: Theme.of(context).colorScheme.surface,
+          backgroundColor: isDark ? const Color(0xFF161B22) : Colors.white,
           title: const Text(
             'Edit Budget',
             style: TextStyle(fontWeight: FontWeight.bold),
@@ -293,7 +306,7 @@ class _BudgetingPageState extends State<BudgetingPage> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Batal'),
+              child: Text('Batal', style: TextStyle(color: primaryTextColor)),
             ),
             ElevatedButton(
               onPressed: () {
@@ -319,6 +332,7 @@ class _BudgetingPageState extends State<BudgetingPage> {
     Function(String?) onChanged,
     String selectedCategory,
   ) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return SingleChildScrollView(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -339,10 +353,13 @@ class _BudgetingPageState extends State<BudgetingPage> {
                     )
                     .toList(),
             onChanged: onChanged,
-            decoration: const InputDecoration(
+            dropdownColor: isDark ? const Color(0xFF21262D) : null,
+            style: TextStyle(color: primaryTextColor),
+            decoration: InputDecoration(
               labelText: 'Kategori',
-              border: OutlineInputBorder(),
-              contentPadding: EdgeInsets.symmetric(
+              labelStyle: TextStyle(color: primaryTextColor),
+              border: const OutlineInputBorder(),
+              contentPadding: const EdgeInsets.symmetric(
                 horizontal: 12,
                 vertical: 10,
               ),
@@ -352,10 +369,12 @@ class _BudgetingPageState extends State<BudgetingPage> {
           TextField(
             controller: controller,
             keyboardType: TextInputType.number,
-            decoration: const InputDecoration(
+            style: TextStyle(color: primaryTextColor),
+            decoration: InputDecoration(
               labelText: 'Jumlah Budget (Rp)',
-              border: OutlineInputBorder(),
-              contentPadding: EdgeInsets.symmetric(
+              labelStyle: TextStyle(color: primaryTextColor),
+              border: const OutlineInputBorder(),
+              contentPadding: const EdgeInsets.symmetric(
                 horizontal: 12,
                 vertical: 10,
               ),
@@ -377,7 +396,7 @@ class _BudgetingPageState extends State<BudgetingPage> {
     };
     return Container(
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceVariant,
+        color: isDark ? const Color(0xFF21262D) : Colors.grey.shade200,
         borderRadius: BorderRadius.circular(8),
       ),
       padding: const EdgeInsets.all(8.0),

@@ -41,6 +41,22 @@ class _TransactionFormPageState extends State<TransactionFormPage> {
     'Other': Icons.category,
   };
 
+  bool get isDark => Theme.of(context).brightness == Brightness.dark;
+  Color get themeColor => isDark ? appYellow : Colors.blue;
+
+  Color get backgroundColor => isDark ? const Color(0xFF0D1117) : Colors.white;
+
+  Color get cardColor =>
+      isDark ? const Color(0xFF161B22) : Colors.grey.shade100;
+
+  Color get primaryTextColor => isDark ? const Color(0xFFE6EDF3) : appBlack;
+
+  Color get secondaryTextColor =>
+      isDark ? const Color(0xFF8B949E) : appBlackSoft;
+
+  Color get borderColor =>
+      isDark ? const Color(0xFF30363D) : Colors.grey.shade300;
+
   Future<void> _pickDate() async {
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -149,17 +165,17 @@ class _TransactionFormPageState extends State<TransactionFormPage> {
   InputDecoration _fancyInput(String label, IconData icon) {
     return InputDecoration(
       labelText: label,
-      labelStyle: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+      labelStyle: TextStyle(color: primaryTextColor),
       filled: true,
-      fillColor: Theme.of(context).colorScheme.surface,
-      prefixIcon: Icon(icon, color: Colors.blue),
+      fillColor: cardColor,
+      prefixIcon: Icon(icon, color: themeColor),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(25),
-        borderSide: BorderSide(color: appPrimary.withOpacity(0.5)),
+        borderSide: BorderSide(color: borderColor),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(25),
-        borderSide: BorderSide(color: appPrimary, width: 2),
+        borderSide: BorderSide(color: themeColor, width: 2),
       ),
       contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
     );
@@ -170,33 +186,26 @@ class _TransactionFormPageState extends State<TransactionFormPage> {
       spacing: 12,
       runSpacing: 12,
       children: _categories.map((cat) {
-        bool isSelected = _selectedCategory == cat;
+        final isSelected = _selectedCategory == cat;
         return GestureDetector(
           onTap: () => setState(() => _selectedCategory = cat),
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 300),
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             decoration: BoxDecoration(
-              color: isSelected
-                  ? appPrimary.withOpacity(0.2)
-                  : Theme.of(context).colorScheme.surface,
+              color: isSelected ? themeColor.withOpacity(0.2) : cardColor,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: isSelected ? appPrimary : Colors.grey.shade400,
+                color: isSelected ? themeColor : borderColor,
                 width: 1.5,
               ),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(_categoryIcons[cat], size: 20, color: appPrimary),
+                Icon(_categoryIcons[cat], size: 20, color: themeColor),
                 const SizedBox(width: 6),
-                Text(
-                  cat,
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurface,
-                  ),
-                ),
+                Text(cat, style: TextStyle(color: primaryTextColor)),
               ],
             ),
           ),
@@ -216,19 +225,18 @@ class _TransactionFormPageState extends State<TransactionFormPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: backgroundColor,
       appBar: AppBar(
-        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
+        backgroundColor: backgroundColor,
+        elevation: 0,
         title: Text(
           'New Transaction',
           style: TextStyle(
             fontWeight: FontWeight.bold,
-            color:
-                Theme.of(context).appBarTheme.foregroundColor ??
-                Theme.of(context).colorScheme.onBackground,
+            color: primaryTextColor,
           ),
         ),
-        iconTheme: IconThemeData(color: Theme.of(context).iconTheme.color),
+        iconTheme: IconThemeData(color: primaryTextColor),
       ),
       body: AnimatedContainer(
         duration: const Duration(milliseconds: 500),
@@ -242,7 +250,7 @@ class _TransactionFormPageState extends State<TransactionFormPage> {
                 Material(
                   elevation: 3,
                   borderRadius: BorderRadius.circular(15),
-                  color: Theme.of(context).colorScheme.surface,
+                  color: cardColor,
                   child: Container(
                     padding: const EdgeInsets.all(20),
                     child: Column(
@@ -300,9 +308,7 @@ class _TransactionFormPageState extends State<TransactionFormPage> {
                                   '${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
                                   style: TextStyle(
                                     fontSize: 16,
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.onSurface,
+                                    color: primaryTextColor,
                                   ),
                                 ),
                                 const Icon(Icons.arrow_drop_down),
@@ -324,7 +330,7 @@ class _TransactionFormPageState extends State<TransactionFormPage> {
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
-                              color: Theme.of(context).colorScheme.onSurface,
+                              color: primaryTextColor,
                             ),
                           ),
                         ),
@@ -340,9 +346,9 @@ class _TransactionFormPageState extends State<TransactionFormPage> {
                   child: ElevatedButton.icon(
                     onPressed: _saveTransaction,
                     icon: const Icon(Icons.save),
-                    label: const Text('Save Transaction'),
+                    label: const Text('Simpan Transaksi'),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
+                      backgroundColor: themeColor,
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
