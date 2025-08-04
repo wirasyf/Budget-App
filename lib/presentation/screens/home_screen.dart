@@ -225,7 +225,10 @@ class _HomePageState extends State<HomePage> {
                               Navigator.pop(context);
                             },
                             icon: const Icon(Icons.delete, color: Colors.white),
-                            label: Text('Hapus', style: TextStyle(color : appWhite),),
+                            label: Text(
+                              'Hapus',
+                              style: TextStyle(color: appWhite),
+                            ),
                           ),
                         ),
                         const SizedBox(width: 10),
@@ -250,7 +253,10 @@ class _HomePageState extends State<HomePage> {
                               Navigator.pop(context);
                             },
                             icon: const Icon(Icons.save, color: Colors.white),
-                            label: Text('Simpan', style: TextStyle(color : appWhite),),
+                            label: Text(
+                              'Simpan',
+                              style: TextStyle(color: appWhite),
+                            ),
                           ),
                         ),
                       ],
