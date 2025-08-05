@@ -1,19 +1,19 @@
 import 'dart:convert';
+import 'package:budget_app/presentation/widgets/settings/setting_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:budget_app/presentation/auth/login.dart';
-import 'package:budget_app/presentation/theme/color.dart';
 
-class Settings extends StatefulWidget {
-  const Settings({super.key});
+class SettingsScreen extends StatefulWidget {
+  const SettingsScreen({super.key});
 
   @override
-  State<Settings> createState() => _SettingsState();
+  State<SettingsScreen> createState() => _SettingsScreenState();
 }
 
-class _SettingsState extends State<Settings> {
+class _SettingsScreenState extends State<SettingsScreen> {
   final user = FirebaseAuth.instance.currentUser;
   final firestore = FirebaseFirestore.instance;
 
@@ -79,175 +79,66 @@ class _SettingsState extends State<Settings> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return Scaffold(
-      backgroundColor: colorScheme.background,
-      body: SafeArea(
-        child: Column(
-          children: [
-            const SizedBox(height: 20),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Row(
-                children: [
-                  GestureDetector(
-                    onTap: pickAndUploadImage,
-                    child: CircleAvatar(
-                      key: ValueKey(base64Image),
-                      radius: 40,
-                      backgroundColor: isDark ? appYellow : Colors.blue,
-                      backgroundImage: base64Image != null
-                          ? MemoryImage(base64Decode(base64Image!))
-                          : null,
-                      child: base64Image == null
-                          ? Icon(Icons.person, size: 50, color: appWhite)
-                          : null,
-                    ),
-                  ),
-                  const SizedBox(width: 20),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          username.isNotEmpty ? username : "No Username",
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: colorScheme.onBackground,
-                          ),
-                        ),
-                        const SizedBox(height: 5),
-                        Text(
-                          user?.email ?? "",
-                          style: TextStyle(
-                            fontSize: 22,
-                            color: colorScheme.onBackground,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  IconButton(
-                    icon: Icon(
-                      Icons.edit,
-                      size: 32,
-                      color: isDark ? appYellow : Colors.blue,
-                    ),
-                    onPressed: () {
-                      final controller = TextEditingController(text: username);
-                      showDialog(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          title: const Text("Edit Username"),
-                          content: TextField(
-                            controller: controller,
-                            decoration: const InputDecoration(
-                              hintText: "Enter new username",
-                            ),
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(context),
-                              child: const Text("Batal"),
-                            ),
-                            TextButton(
-                              onPressed: () async {
-                                await updateUsername(controller.text.trim());
-                                if (!mounted) return;
-                                Navigator.pop(context);
-                              },
-                              child: const Text("Simpan"),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 30),
-            Container(
-              width: double.infinity,
-              margin: const EdgeInsets.all(20),
-              padding: const EdgeInsets.symmetric(vertical: 20),
-              decoration: BoxDecoration(
-                color: colorScheme.surface,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Column(
-                children: [
-                  _buildSettingItem(
-                    icon: Icons.info,
-                    label: "Info Aplikasi",
-                    color: isDark ? appYellow : Colors.blue,
-                    onTap: () {
-                      showAboutDialog(
-                        context: context,
-                        applicationName: 'Budget App',
-                        applicationVersion: 'v1.0',
-                        applicationLegalese: '©2025 Budget App by Wirawrr',
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 30),
-                  _buildSettingItem(
-                    icon: Icons.logout,
-                    label: "Log Out",
-                    color: isDark ? appYellow : Colors.blue,
-                    onTap: () async {
-                      await FirebaseAuth.instance.signOut();
-                      if (!mounted) return;
-                      Navigator.of(context).pushAndRemoveUntil(
-                        MaterialPageRoute(builder: (_) => const LoginPage()),
-                        (route) => false,
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ),
-          ],
+  Future<void> _showEditUsernameDialog() async {
+    final controller = TextEditingController(text: username);
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Edit Username"),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(hintText: "Enter new username"),
         ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Batal"),
+          ),
+          TextButton(
+            onPressed: () async {
+              await updateUsername(controller.text.trim());
+              if (!mounted) return;
+              Navigator.pop(context);
+            },
+            child: const Text("Simpan"),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildSettingItem({
-    required IconData icon,
-    required String label,
-    required Color color,
-    required VoidCallback onTap,
-  }) {
+  Future<void> _showAboutDialog() async {
+    showAboutDialog(
+      context: context,
+      applicationName: 'Budget App',
+      applicationVersion: 'v1.0',
+      applicationLegalese: '©2025 Budget App by Wirawrr',
+    );
+  }
+
+  Future<void> _logout() async {
+    await FirebaseAuth.instance.signOut();
+    if (!mounted) return;
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (_) => const LoginPage()),
+      (route) => false,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 30),
-      child: Row(
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              color: color,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: IconButton(
-              icon: Icon(icon, size: 32, color: appPrimary),
-              onPressed: onTap,
-            ),
-          ),
-          const SizedBox(width: 10),
-          TextButton(
-            onPressed: onTap,
-            child: Text(
-              label,
-              style: TextStyle(fontSize: 18, color: colorScheme.onBackground),
-            ),
-          ),
-        ],
+
+    return Scaffold(
+      backgroundColor: colorScheme.background,
+      body: SettingsWidget(
+        user: user,
+        username: username,
+        base64Image: base64Image,
+        onImagePick: pickAndUploadImage,
+        onEditUsername: _showEditUsernameDialog,
+        onShowAbout: _showAboutDialog,
+        onLogout: _logout,
       ),
     );
   }

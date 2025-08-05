@@ -1,17 +1,18 @@
+import 'package:budget_app/presentation/widgets/budget/budgeting_widget.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../theme/color.dart';
 
-class BudgetingPage extends StatefulWidget {
-  const BudgetingPage({super.key});
+class BudgetingScreen extends StatefulWidget {
+  const BudgetingScreen({super.key});
 
   @override
-  State<BudgetingPage> createState() => _BudgetingPageState();
+  State<BudgetingScreen> createState() => _BudgetingScreenState();
 }
 
-class _BudgetingPageState extends State<BudgetingPage> {
+class _BudgetingScreenState extends State<BudgetingScreen> {
   final user = FirebaseAuth.instance.currentUser;
   DateTime selectedMonth = DateTime.now();
 
@@ -22,184 +23,8 @@ class _BudgetingPageState extends State<BudgetingPage> {
   );
 
   bool get isDark => Theme.of(context).brightness == Brightness.dark;
-
   Color get backgroundColor => isDark ? const Color(0xFF0D1117) : Colors.white;
-
-  Color get cardColor => isDark ? const Color(0xFF161B22) : Colors.white;
-
   Color get primaryTextColor => isDark ? const Color(0xFFE6EDF3) : appBlack;
-
-  Color get secondaryTextColor =>
-      isDark ? const Color(0xFF8B949E) : appBlackSoft;
-
-  Color get borderColor =>
-      isDark ? const Color(0xFF30363D) : Colors.grey.shade300;
-
-  Color get iconColor => isDark ? const Color(0xFF58A6FF) : appPrimary;
-
-  @override
-  Widget build(BuildContext context) {
-    final currentMonth = DateFormat('yyyy-MM').format(selectedMonth);
-
-    return Scaffold(
-      backgroundColor: backgroundColor,
-      appBar: AppBar(
-        title: const Text(
-          'Budgeting',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        backgroundColor: backgroundColor,
-        foregroundColor: primaryTextColor,
-        elevation: 1,
-        actions: [
-          IconButton(
-            icon: Icon(Icons.date_range, color: iconColor),
-            onPressed: () => _selectMonth(context),
-          ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _showAddBudgetDialog(context),
-        backgroundColor: appYellow,
-        child: Icon(Icons.add, color: isDark ? appBlack : appWhite),
-      ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('budgets')
-            .where('uid', isEqualTo: user?.uid)
-            .where('month', isEqualTo: currentMonth)
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return Center(
-              child: Text(
-                'Error: ${snapshot.error}',
-                style: TextStyle(color: primaryTextColor),
-              ),
-            );
-          }
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          final budgets = snapshot.data!.docs;
-          if (budgets.isEmpty) {
-            return Center(
-              child: Text(
-                'Belum ada anggaran bulan ini.',
-                style: TextStyle(color: secondaryTextColor),
-              ),
-            );
-          }
-
-          return ListView.builder(
-            itemCount: budgets.length,
-            itemBuilder: (context, index) {
-              final doc = budgets[index];
-              final data = doc.data() as Map<String, dynamic>;
-              final category = data['category'];
-              final budgetAmount = (data['amount'] ?? 0).toDouble();
-              final usedAmount = (data['used'] ?? 0).toDouble();
-              final remaining = budgetAmount - usedAmount;
-              final percent = (usedAmount / budgetAmount).clamp(0.0, 1.0);
-
-              return Container(
-                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                decoration: BoxDecoration(
-                  color: cardColor,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: borderColor, width: 1),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          _buildCategoryIcon(category),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  category,
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: primaryTextColor,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  'Anggaran: ${formatRupiah.format(budgetAmount)}',
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    color: secondaryTextColor,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          PopupMenuButton<String>(
-                            color: cardColor,
-                            onSelected: (value) {
-                              if (value == 'edit') {
-                                _showEditBudgetDialog(context, doc);
-                              }
-                            },
-                            itemBuilder: (context) => [
-                              const PopupMenuItem(
-                                value: 'edit',
-                                child: Text('Edit'),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      LinearProgressIndicator(
-                        value: percent,
-                        backgroundColor: isDark
-                            ? const Color(0xFF21262D)
-                            : Colors.grey.shade300,
-                        color: percent > 0.9
-                            ? appRed
-                            : (percent > 0.6 ? appYellow : appGreen),
-                        minHeight: 10,
-                      ),
-                      const SizedBox(height: 12),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Dipakai: ${formatRupiah.format(usedAmount)}',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: secondaryTextColor,
-                            ),
-                          ),
-                          Text(
-                            'Sisa: ${formatRupiah.format(remaining)}',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: remaining < 0 ? appRed : primaryTextColor,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          );
-        },
-      ),
-    );
-  }
 
   Future<void> _selectMonth(BuildContext context) async {
     final picked = await showDatePicker(
@@ -272,7 +97,7 @@ class _BudgetingPageState extends State<BudgetingPage> {
                 Navigator.pop(context);
               },
               style: ElevatedButton.styleFrom(backgroundColor: appPrimary),
-              child: Text('Simpan', style: TextStyle (color: appBlack)),
+              child: Text('Simpan', style: TextStyle(color: appBlack)),
             ),
           ],
         );
@@ -319,7 +144,7 @@ class _BudgetingPageState extends State<BudgetingPage> {
                 Navigator.pop(context);
               },
               style: ElevatedButton.styleFrom(backgroundColor: appPrimary),
-              child: Text('Simpan', style: TextStyle(color : appBlack),),
+              child: Text('Simpan', style: TextStyle(color: appBlack)),
             ),
           ],
         );
@@ -385,25 +210,40 @@ class _BudgetingPageState extends State<BudgetingPage> {
     );
   }
 
-  Widget _buildCategoryIcon(String category) {
-    final icons = {
-      'Food': Icons.restaurant,
-      'Transportation': Icons.directions_car,
-      'Shopping': Icons.shopping_bag,
-      'Bills': Icons.receipt,
-      'Entertainment': Icons.movie,
-      'Other': Icons.category,
-    };
-    return Container(
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF21262D) : Colors.grey.shade200,
-        borderRadius: BorderRadius.circular(8),
+  @override
+  Widget build(BuildContext context) {
+    final currentMonth = DateFormat('yyyy-MM').format(selectedMonth);
+
+    return Scaffold(
+      backgroundColor: backgroundColor,
+      appBar: AppBar(
+        title: const Text(
+          'Budgeting',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: backgroundColor,
+        foregroundColor: primaryTextColor,
+        elevation: 1,
+        actions: [
+          IconButton(
+            icon: Icon(
+              Icons.date_range,
+              color: isDark ? const Color(0xFF58A6FF) : appPrimary,
+            ),
+            onPressed: () => _selectMonth(context),
+          ),
+        ],
       ),
-      padding: const EdgeInsets.all(8.0),
-      child: Icon(
-        icons[category] ?? Icons.category,
-        size: 20,
-        color: appYellow,
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _showAddBudgetDialog(context),
+        backgroundColor: appYellow,
+        child: Icon(Icons.add, color: isDark ? appBlack : appWhite),
+      ),
+      body: BudgetingWidget(
+        user: user,
+        currentMonth: currentMonth,
+        formatRupiah: formatRupiah,
+        onEditBudget: _showEditBudgetDialog,
       ),
     );
   }

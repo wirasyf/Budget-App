@@ -1,10 +1,10 @@
+import 'package:budget_app/presentation/screens/budget_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:budget_app/presentation/theme/color.dart';
-import 'package:budget_app/presentation/screens/add_screen.dart';
+import 'package:budget_app/presentation/screens/add_transaksi_screen.dart';
 import 'package:budget_app/presentation/screens/detail_transaction_screen.dart';
 import 'package:budget_app/presentation/screens/home_screen.dart';
-import 'package:budget_app/presentation/screens/budget_screen.dart';
 import 'package:budget_app/presentation/screens/settings_screen.dart';
 
 class MainNavigation extends StatefulWidget {
@@ -21,9 +21,9 @@ class _MainNavigationState extends State<MainNavigation> {
   final List<Widget> _pages = [
     HomePage(),
     DetailTransaction(),
-    TransactionFormPage(),
-    BudgetingPage(),
-    Settings(),
+    TransactionFormScreen(),
+    BudgetingScreen(),
+    SettingsScreen(),
   ];
 
   @override
