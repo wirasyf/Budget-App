@@ -31,6 +31,7 @@ class _SettingsState extends State<Settings> {
     if (user == null) return;
 
     final snapshot = await firestore.collection('users').doc(user!.uid).get();
+    if (!mounted) return;
     if (snapshot.exists) {
       setState(() {
         username = snapshot.data()?['username'] ?? '';
@@ -46,10 +47,8 @@ class _SettingsState extends State<Settings> {
     await firestore.collection('users').doc(user!.uid).set({
       'username': newUsername,
     }, SetOptions(merge: true));
-
-    setState(() {
-      username = newUsername;
-    });
+    if (!mounted) return;
+    setState(() => username = newUsername);
   }
 
   /// Ambil gambar dari galeri lalu simpan base64 ke Firestore
@@ -69,14 +68,12 @@ class _SettingsState extends State<Settings> {
         await firestore.collection('users').doc(user!.uid).set({
           'photoData': base64,
         }, SetOptions(merge: true));
-
-        setState(() {
-          base64Image = base64;
-        });
+        if (!mounted) return;
+        setState(() => base64Image = base64);
       }
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(
-        // ignore: use_build_context_synchronously
         context,
       ).showSnackBar(SnackBar(content: Text('Gagal upload gambar: $e')));
     }
@@ -161,7 +158,7 @@ class _SettingsState extends State<Settings> {
                             TextButton(
                               onPressed: () async {
                                 await updateUsername(controller.text.trim());
-                                // ignore: use_build_context_synchronously
+                                if (!mounted) return;
                                 Navigator.pop(context);
                               },
                               child: const Text("Simpan"),
@@ -194,8 +191,7 @@ class _SettingsState extends State<Settings> {
                         context: context,
                         applicationName: 'Budget App',
                         applicationVersion: 'v1.0',
-                        applicationLegalese:
-                            '©2025 Budget App by Wirawrr',
+                        applicationLegalese: '©2025 Budget App by Wirawrr',
                       );
                     },
                   ),
@@ -206,7 +202,7 @@ class _SettingsState extends State<Settings> {
                     color: isDark ? appYellow : Colors.blue,
                     onTap: () async {
                       await FirebaseAuth.instance.signOut();
-                      // ignore: use_build_context_synchronously
+                      if (!mounted) return;
                       Navigator.of(context).pushAndRemoveUntil(
                         MaterialPageRoute(builder: (_) => const LoginPage()),
                         (route) => false,
